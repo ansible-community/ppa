@@ -1,0 +1,89 @@
+---
+name: ansible
+on:
+  push:
+    branches:
+      - ansible-4
+    paths:
+      - .github/workflows/ansible.yml
+jobs:
+  build_ansible:
+    name: Build ansible
+    runs-on: ubuntu-20.04
+    steps:
+      - name: setup
+        env:
+          DPUT_CF: ${{ secrets.DPUT_CF }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
+          SIGNING_OWNERTRUST: ${{ secrets.SIGNING_OWNERTRUST }}
+        run: |
+          sudo apt -y remove ansible || true
+          sudo apt -y remove ansible-base || true
+          sudo apt -y remove ansible-core || true
+          sudo apt -y autoremove
+
+          sudo apt -y install wget gpg gpg-agent
+
+          echo "${DPUT_CF}" > "${HOME}"/.dput.cf
+          echo "${SIGNING_KEY}" > "${HOME}"/signing.key
+          echo "${SIGNING_PASSPHRASE}" > "${HOME}"/signing.passphrase
+          echo "${SIGNING_OWNERTRUST}" > "${HOME}"/signing.ownertrust
+
+          gpg --import --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.key
+          gpg --import-ownertrust --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.ownertrust
+
+      - name: checkout branch
+        uses: actions/checkout@v2
+        with:
+          ref: ansible-4
+
+      - name: build
+        env:
+          DEB_NAME: ansible
+          DEB_VERSION: 4.0.0
+          DEB_RELEASE: 1ppa
+          DEB_DIST: hirsute groovy focal bionic
+          DEB_PPA: ansible-4
+          DEBSIGN_KEYID: ${{ secrets.DEBSIGN_KEYID }}
+          DEBSIGN_PROGRAM: gpg --pinentry-mode loopback --passphrase-file ${HOME}/signing.passphrase
+          TARBALL_BASE_URL: https://pypi.python.org/packages/source
+        run: |
+          # handle different release types better in the changelog
+          DEB_VERSION_EXTRA=$(echo "${DEB_VERSION}" | grep -Po '[a-z]+.*' || true)
+
+          if [[ -n "${DEB_VERSION_EXTRA}" ]]; then
+            DEB_VERSION_BASE=$(echo "${DEB_VERSION}" | grep -Po '^[\d+\.]+')
+            export DEB_CHANGELOG_VERSION="${DEB_VERSION_BASE}"~"${DEB_VERSION_EXTRA}"
+          else
+            export DEB_CHANGELOG_VERSION="${DEB_VERSION}"
+          fi
+
+          sudo apt -y install python3-setuptools devscripts debhelper dh-python python3-all
+
+          mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
+          rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*
+          wget "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME}"/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
+          tar -xzf "${DEB_NAME}"-"${DEB_VERSION}".tar.gz
+          cd "${DEB_NAME}"-"${DEB_VERSION}" || exit
+          _ANSIBLE_SDIST_FROM_MAKEFILE=1 python3 setup.py sdist --dist-dir=dist
+
+          DATE=$(date -R)
+          export DATE
+
+          for DIST in ${DEB_DIST}; do
+            export DIST
+
+            mkdir -p deb-build/"${DIST}"
+            tar -C deb-build/"${DIST}" -xzf dist/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
+            envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/templates/changelog > deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/changelog
+
+            sed -i 's/^Maintainer: Rick Elrod <relrod@redhat.com>/Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>\nUploaders: Ansible GitHub Actions <ansible-gha@redhat.com>/g' deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/control
+            sed -i 's/debhelper-compat (= 12)/debhelper-compat (= 11)/g' deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/control
+
+            chmod +x deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/rules
+            cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
+            debuild --source-option='-I' -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
+            cd - || exit
+            dput "${DEB_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
+          done
