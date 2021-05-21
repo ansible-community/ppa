@@ -1,0 +1,84 @@
+---
+name: resolvelib
+on:
+  push:
+    branches:
+      - ansible-4
+    paths:
+      - .github/workflows/resolvelib.yml
+jobs:
+  build_resolvelib:
+    name: Build resolvelib
+    runs-on: ubuntu-20.04
+    steps:
+      - name: setup
+        env:
+          DPUT_CF: ${{ secrets.DPUT_CF }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
+          SIGNING_OWNERTRUST: ${{ secrets.SIGNING_OWNERTRUST }}
+        run: |
+          sudo apt -y remove ansible || true
+          sudo apt -y remove ansible-base || true
+          sudo apt -y remove ansible-core || true
+          sudo apt -y autoremove
+
+          sudo apt -y install wget gpg gpg-agent
+
+          echo "${DPUT_CF}" > "${HOME}"/.dput.cf
+          echo "${SIGNING_KEY}" > "${HOME}"/signing.key
+          echo "${SIGNING_PASSPHRASE}" > "${HOME}"/signing.passphrase
+          echo "${SIGNING_OWNERTRUST}" > "${HOME}"/signing.ownertrust
+
+          gpg --import --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.key
+          gpg --import-ownertrust --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.ownertrust
+
+      - name: checkout branch
+        uses: actions/checkout@v2
+        with:
+          ref: ansible-4
+
+      - name: build
+        env:
+          DEB_NAME: resolvelib
+          DEB_VERSION: 0.5.4
+          DEB_RELEASE: 1ppa
+          DEB_DIST: groovy focal bionic
+          DEB_PPA: ansible-4
+          DEBSIGN_KEYID: ${{ secrets.DEBSIGN_KEYID }}
+          DEBSIGN_PROGRAM: gpg --pinentry-mode loopback --passphrase-file ${HOME}/signing.passphrase
+          TARBALL_BASE_URL: https://pypi.python.org/packages/source
+        run: |
+          # handle different release types better in the changelog
+          DEB_VERSION_EXTRA=$(echo "${DEB_VERSION}" | grep -Po '[a-z]+.*' || true)
+
+          if [[ -n "${DEB_VERSION_EXTRA}" ]]; then
+            DEB_VERSION_BASE=$(echo "${DEB_VERSION}" | grep -Po '^[\d+\.]+')
+            export DEB_CHANGELOG_VERSION="${DEB_VERSION_BASE}"~"${DEB_VERSION_EXTRA}"
+          else
+            export DEB_CHANGELOG_VERSION="${DEB_VERSION}"
+          fi
+
+          sudo apt -y install devscripts debhelper dh-python python3-all python3-setuptools
+
+          mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
+          rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*
+          wget "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME}"/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz -O "${DEB_NAME}"_"${DEB_VERSION}".orig.tar.gz
+          tar -xzf "${DEB_NAME}"_"${DEB_VERSION}".orig.tar.gz
+          cd "${DEB_NAME}"-"${DEB_VERSION}" || exit
+
+          cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/debian ./
+
+          envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/templates/hard_code_version > debian/patches/hard_code_version
+
+          DATE=$(date -R)
+          export DATE
+
+          for DIST in ${DEB_DIST}; do
+            export DIST
+
+            envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/templates/changelog > debian/changelog
+
+            debuild -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
+            dput "${DEB_PPA}" ../"${DEB_NAME}"_"${DEB_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
+          done
