@@ -1,0 +1,73 @@
+---
+name: ansible
+on:
+  push:
+    branches:
+      - ansible-2.9
+    paths:
+      - .github/workflows/ansible.yml
+jobs:
+  build_ansible:
+    name: Build ansible
+    runs-on: ubuntu-20.04
+    steps:
+      - name: setup
+        env:
+          DPUT_CF: ${{ secrets.DPUT_CF }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
+          SIGNING_OWNERTRUST: ${{ secrets.SIGNING_OWNERTRUST }}
+        run: |
+          sudo apt -y remove ansible || true
+          sudo apt -y remove ansible-base || true
+          sudo apt -y remove ansible-core || true
+          sudo apt -y autoremove
+
+          sudo apt -y install wget gpg gpg-agent
+
+          echo "${DPUT_CF}" > "${HOME}"/.dput.cf
+          echo "${SIGNING_KEY}" > "${HOME}"/signing.key
+          echo "${SIGNING_PASSPHRASE}" > "${HOME}"/signing.passphrase
+          echo "${SIGNING_OWNERTRUST}" > "${HOME}"/signing.ownertrust
+
+          gpg --import --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.key
+          gpg --import-ownertrust --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.ownertrust
+
+      - name: build
+        env:
+          DEB_NAME: ansible
+          DEB_VERSION: 2.9.22
+          DEB_RELEASE: 1ppa
+          DEB_DIST: bionic
+          DEB_PPA: ansible-2.9
+          DEBSIGN_KEYID: ${{ secrets.DEBSIGN_KEYID }}
+          DEBSIGN_PROGRAM: gpg --pinentry-mode loopback --passphrase-file ${HOME}/signing.passphrase
+          OFFICIAL: yes
+          TARBALL_BASE_URL: https://pypi.python.org/packages/source
+        run: |
+          # handle different release types better in the changelog
+          DEB_VERSION_EXTRA=$(echo "${DEB_VERSION}" | grep -Po '[a-z]+.*' || true)
+
+          if [[ -n "${DEB_VERSION_EXTRA}" ]]; then
+            DEB_VERSION_BASE=$(echo "${DEB_VERSION}" | grep -Po '^[\d+\.]+')
+            export DEB_CHANGELOG_VERSION="${DEB_VERSION_BASE}"~"${DEB_VERSION_EXTRA}"
+          else
+            export DEB_CHANGELOG_VERSION="${DEB_VERSION}"
+          fi
+
+          sudo apt -y install make python python-packaging python3-straight.plugin python3-docutils python-setuptools devscripts cdbs debhelper python-docutils dh-python
+
+          mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
+          rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*
+          wget "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME}"/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
+          tar -xzf "${DEB_NAME}"-"${DEB_VERSION}".tar.gz
+          cd "${DEB_NAME}"-"${DEB_VERSION}" || exit
+
+          # add DEBSIGN_PROGRAM option for non-interactive signing
+          sed -Ei 's/(\s+DEBUILD_OPTS \+= -k\$\(DEBSIGN_KEYID\))$/\1 -p"$(DEBSIGN_PROGRAM)"/g' Makefile
+          # change contact in debian/changelog to Ansible Community Builds
+          sed -i 's/Ansible, Inc. <info@ansible.com>/Ansible Community Builds <ansible-community-builds@redhat.com>/g' packaging/debian/changelog
+          # change contact in debian/control to Ansible Community Builds
+          sed -i 's/^Maintainer: Ansible, Inc. <info@ansible.com>/Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>\nUploaders: Ansible GitHub Actions <ansible-gha@redhat.com>/g' packaging/debian/control
+
+          time DEB_VERSION="${DEB_CHANGELOG_VERSION}" make deb-src-upload
