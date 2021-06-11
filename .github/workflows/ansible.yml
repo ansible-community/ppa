@@ -33,16 +33,20 @@ jobs:
           gpg --import --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.key
           gpg --import-ownertrust --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.ownertrust
 
+      - name: checkout branch
+        uses: actions/checkout@v2
+        with:
+          ref: testing-ansible
+
       - name: build
         env:
           DEB_NAME: ansible
-          DEB_VERSION: 2.9.22
+          DEB_VERSION: 4.1.0
           DEB_RELEASE: 1ppa
-          DEB_DIST: bionic
+          DEB_DIST: hirsute groovy focal bionic
           DEB_PPA: testing-ansible
           DEBSIGN_KEYID: ${{ secrets.DEBSIGN_KEYID }}
           DEBSIGN_PROGRAM: gpg --pinentry-mode loopback --passphrase-file ${HOME}/signing.passphrase
-          OFFICIAL: yes
           TARBALL_BASE_URL: https://pypi.python.org/packages/source
         run: |
           # handle different release types better in the changelog
@@ -55,19 +59,31 @@ jobs:
             export DEB_CHANGELOG_VERSION="${DEB_VERSION}"
           fi
 
-          sudo apt -y install make python python-packaging python3-straight.plugin python3-docutils python-setuptools devscripts cdbs debhelper python-docutils dh-python
+          sudo apt -y install python3-setuptools devscripts debhelper dh-python python3-all
 
           mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
           rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*
           wget "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME}"/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
           tar -xzf "${DEB_NAME}"-"${DEB_VERSION}".tar.gz
           cd "${DEB_NAME}"-"${DEB_VERSION}" || exit
+          _ANSIBLE_SDIST_FROM_MAKEFILE=1 python3 setup.py sdist --dist-dir=dist
 
-          # add DEBSIGN_PROGRAM option for non-interactive signing
-          sed -Ei 's/(\s+DEBUILD_OPTS \+= -k\$\(DEBSIGN_KEYID\))$/\1 -p"$(DEBSIGN_PROGRAM)"/g' Makefile
-          # change contact in debian/changelog to Ansible Community Builds
-          sed -i 's/Ansible, Inc. <info@ansible.com>/Ansible Community Builds <ansible-community-builds@redhat.com>/g' packaging/debian/changelog
-          # change contact in debian/control to Ansible Community Builds
-          sed -i 's/^Maintainer: Ansible, Inc. <info@ansible.com>/Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>\nUploaders: Ansible GitHub Actions <ansible-gha@redhat.com>/g' packaging/debian/control
+          DATE=$(date -R)
+          export DATE
 
-          time DEB_VERSION="${DEB_CHANGELOG_VERSION}" make deb-src-upload
+          for DIST in ${DEB_DIST}; do
+            export DIST
+
+            mkdir -p deb-build/"${DIST}"
+            tar -C deb-build/"${DIST}" -xzf dist/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
+            envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/templates/changelog > deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/changelog
+
+            sed -i 's/^Maintainer: Rick Elrod <relrod@redhat.com>/Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>\nUploaders: Ansible GitHub Actions <ansible-gha@redhat.com>/g' deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/control
+            sed -i 's/debhelper-compat (= 12)/debhelper-compat (= 11)/g' deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/control
+
+            chmod +x deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/rules
+            cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
+            debuild --source-option='-I' -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
+            cd - || exit
+            dput "${DEB_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
+          done
