@@ -41,7 +41,7 @@ jobs:
       - name: build
         env:
           DEB_NAME: ansible-base
-          DEB_VERSION: 2.10.10
+          DEB_VERSION: 2.10.11
           DEB_RELEASE: 1ppa
           DEB_DIST: hirsute groovy focal bionic
           DEB_PPA: ansible-2.10
