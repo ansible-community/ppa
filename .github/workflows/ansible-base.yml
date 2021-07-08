@@ -33,6 +33,11 @@ jobs:
           gpg --import --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.key
           gpg --import-ownertrust --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.ownertrust
 
+      - name: checkout branch
+        uses: actions/checkout@v2
+        with:
+          ref: ansible-3
+
       - name: build
         env:
           DEB_NAME: ansible-base
@@ -65,9 +70,8 @@ jobs:
 
           # add DEBSIGN_PROGRAM option for non-interactive signing
           sed -Ei 's/(\s+DEBUILD_OPTS \+= -k\$\(DEBSIGN_KEYID\))$/\1 -p"$(DEBSIGN_PROGRAM)"/g' Makefile
-          # change contact in debian/changelog to Ansible Community Builds
-          sed -i 's/Ansible, Inc. <info@ansible.com>/Ansible Community Builds <ansible-community-builds@redhat.com>/g' packaging/debian/changelog
-          # change contact in debian/control to Ansible Community Builds
-          sed -i 's/^Maintainer: Ansible, Inc. <info@ansible.com>/Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>\nUploaders: Ansible GitHub Actions <ansible-gha@redhat.com>/g' packaging/debian/control
+
+          # overwrite debian files using this repo's files
+          cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/debian/* packaging/debian/
 
           time DEB_VERSION="${DEB_CHANGELOG_VERSION}" make deb-src-upload
