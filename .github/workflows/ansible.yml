@@ -36,7 +36,7 @@ jobs:
       - name: build
         env:
           DEB_NAME: ansible
-          DEB_VERSION: 2.9.22
+          DEB_VERSION: 2.9.23
           DEB_RELEASE: 1ppa
           DEB_DIST: bionic
           DEB_PPA: ansible-2.9
