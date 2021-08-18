@@ -1,15 +1,23 @@
 ---
-name: ansible
+name: ansible-cron
 on:
   push:
     branches:
       - testing-ansible
-    paths:
-      - .github/workflows/ansible.yml
+    schedule:
+      - cron: "0 0 * * *"
 jobs:
   build_ansible:
     name: Build ansible
     runs-on: ubuntu-20.04
+    env:
+      DEB_NAME: ansible
+      DEB_VERSION_SPECIFIER: "~=4.0a"
+      DEB_RELEASE: 1ppa
+      DEB_ARCH: amd64
+      DEB_DIST: hirsute focal bionic
+      LAUNCHPAD_PROJECT: ~ansible
+      LAUNCHPAD_PPA: testing-ansible
     steps:
       - name: setup
         env:
@@ -38,17 +46,26 @@ jobs:
         with:
           ref: testing-ansible
 
+      - name: set DEB_VERSION via python
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install beautifulsoup4 ipython launchpadlib lxml packaging requests
+
+          python3 "${HOME}"/work/ppa/ppa/.github/workflows/get_deb_version.py
+
       - name: build
         env:
-          DEB_NAME: ansible
-          DEB_VERSION: 4.2.0
-          DEB_RELEASE: 1ppa
-          DEB_DIST: hirsute groovy focal bionic
-          DEB_PPA: testing-ansible
           DEBSIGN_KEYID: ${{ secrets.DEBSIGN_KEYID }}
           DEBSIGN_PROGRAM: gpg --pinentry-mode loopback --passphrase-file ${HOME}/signing.passphrase
           TARBALL_BASE_URL: https://pypi.python.org/packages/source
         run: |
+          if [[ -z "${DEB_VERSION+x}" ]]; then
+            exit 0
+          else
+            echo "DEB_VERSION=${DEB_VERSION}"
+            echo "DEB_DIST=${DEB_DIST}"
+          fi
+
           # handle different release types better in the changelog
           DEB_VERSION_EXTRA=$(echo "${DEB_VERSION}" | grep -Po '[a-z]+.*' || true)
 
@@ -85,5 +102,5 @@ jobs:
             cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
             debuild --source-option='-I' -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
             cd - || exit
-            dput "${DEB_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
+            dput "${LAUNCHPAD_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
           done
