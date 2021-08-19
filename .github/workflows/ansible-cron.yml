@@ -1,11 +1,8 @@
 ---
 name: ansible-cron
 on:
-  push:
-    branches:
-      - testing-ansible
-    schedule:
-      - cron: "0 0 * * *"
+  schedule:
+    - cron: "0 0 * * *"
 jobs:
   build_ansible:
     name: Build ansible
@@ -15,7 +12,7 @@ jobs:
       DEB_VERSION_SPECIFIER: "~=4.0a"
       DEB_RELEASE: 1ppa
       DEB_ARCH: amd64
-      DEB_DIST: hirsute focal bionic
+      DEB_DIST: impish hirsute focal bionic
       LAUNCHPAD_PROJECT: ~ansible
       LAUNCHPAD_PPA: testing-ansible
     steps:

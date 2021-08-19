@@ -1,11 +1,8 @@
 ---
 name: resolvelib-cron
 on:
-  push:
-    branches:
-      - testing-ansible
-    schedule:
-      - cron: "0 0 * * *"
+  schedule:
+    - cron: "0 0 * * *"
 jobs:
   build_resolvelib:
     name: Build resolvelib
