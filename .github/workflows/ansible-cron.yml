@@ -1,15 +1,20 @@
 ---
-name: ansible-base
+name: ansible-cron
 on:
-  push:
-    branches:
-      - ansible-2.10
-    paths:
-      - .github/workflows/ansible-base.yml
+  schedule:
+    - cron: "0 0 * * *"
 jobs:
-  build_ansible_base:
-    name: Build ansible-base
+  build_ansible:
+    name: Build ansible
     runs-on: ubuntu-20.04
+    env:
+      DEB_NAME: ansible
+      DEB_VERSION_SPECIFIER: "~=2.10.0"
+      DEB_RELEASE: 1ppa
+      DEB_ARCH: amd64
+      DEB_DIST: hirsute focal bionic
+      LAUNCHPAD_PROJECT: ~ansible
+      LAUNCHPAD_PPA: ansible-2.10
     steps:
       - name: setup
         env:
@@ -38,18 +43,26 @@ jobs:
         with:
           ref: ansible-2.10
 
+      - name: set DEB_VERSION via python
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install beautifulsoup4 ipython launchpadlib lxml packaging requests
+
+          python3 "${HOME}"/work/ppa/ppa/.github/workflows/get_deb_version.py
+
       - name: build
         env:
-          DEB_NAME: ansible-base
-          DEB_VERSION: 2.10.11
-          DEB_RELEASE: 1ppa
-          DEB_DIST: hirsute groovy focal bionic
-          DEB_PPA: ansible-2.10
           DEBSIGN_KEYID: ${{ secrets.DEBSIGN_KEYID }}
           DEBSIGN_PROGRAM: gpg --pinentry-mode loopback --passphrase-file ${HOME}/signing.passphrase
-          OFFICIAL: yes
           TARBALL_BASE_URL: https://pypi.python.org/packages/source
         run: |
+          if [[ -z "${DEB_VERSION+x}" ]]; then
+            exit 0
+          else
+            echo "DEB_VERSION=${DEB_VERSION}"
+            echo "DEB_DIST=${DEB_DIST}"
+          fi
+
           # handle different release types better in the changelog
           DEB_VERSION_EXTRA=$(echo "${DEB_VERSION}" | grep -Po '[a-z]+.*' || true)
 
@@ -60,18 +73,31 @@ jobs:
             export DEB_CHANGELOG_VERSION="${DEB_VERSION}"
           fi
 
-          sudo apt -y install make python python-packaging python-setuptools python3-straight.plugin python3-jinja2 python3-yaml python3-docutils devscripts cdbs debhelper dh-python python3-setuptools python3-packaging
+          sudo apt -y install python3-setuptools devscripts debhelper dh-python python3-all
 
           mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
           rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*
           wget "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME}"/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
           tar -xzf "${DEB_NAME}"-"${DEB_VERSION}".tar.gz
           cd "${DEB_NAME}"-"${DEB_VERSION}" || exit
+          _ANSIBLE_SDIST_FROM_MAKEFILE=1 python3 setup.py sdist --dist-dir=dist
 
-          # add DEBSIGN_PROGRAM option for non-interactive signing
-          sed -Ei 's/(\s+DEBUILD_OPTS \+= -k\$\(DEBSIGN_KEYID\))$/\1 -p"$(DEBSIGN_PROGRAM)"/g' Makefile
+          DATE=$(date -R)
+          export DATE
 
-          # overwrite debian files using this repo's files
-          cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/debian/* packaging/debian/
+          for DIST in ${DEB_DIST}; do
+            export DIST
 
-          time DEB_VERSION="${DEB_CHANGELOG_VERSION}" make deb-src-upload
+            mkdir -p deb-build/"${DIST}"
+            tar -C deb-build/"${DIST}" -xzf dist/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
+            envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/templates/changelog > deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/changelog
+
+            sed -i 's/^Maintainer: Rick Elrod <relrod@redhat.com>/Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>\nUploaders: Ansible GitHub Actions <ansible-gha@redhat.com>/g' deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/control
+            sed -i 's/debhelper-compat (= 12)/debhelper-compat (= 11)/g' deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/control
+
+            chmod +x deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/rules
+            cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
+            debuild --source-option='-I' -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
+            cd - || exit
+            dput "${LAUNCHPAD_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
+          done
