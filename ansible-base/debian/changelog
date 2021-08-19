@@ -1,0 +1,5 @@
+ansible-base (%VERSION%-%RELEASE%~%DIST%) %DIST%; urgency=low
+
+  * %VERSION% release
+
+ -- Ansible Community Builds <ansible-community-builds@redhat.com>  %DATE%
