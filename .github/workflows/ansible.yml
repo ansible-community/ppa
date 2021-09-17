@@ -1,54 +1,63 @@
 ---
 name: ansible
 on:
-  push:
-    branches:
-      - ansible-3
-    paths:
-      - .github/workflows/ansible.yml
+  workflow_dispatch:
+    inputs:
+      DEB_ARCH:
+        required: true
+        default: amd64
+      DEB_DIST:
+        required: true
+      DEB_RELEASE:
+        required: true
+        default: 1ppa
+      DEB_VERSION:
+        required: true
+      LAUNCHPAD_PROJECT:
+        required: true
+      LAUNCHPAD_PPA:
+        required: true
 jobs:
   build_ansible:
     name: Build ansible
     runs-on: ubuntu-20.04
+    env:
+      DEB_NAME: ansible
+      DEB_ARCH: ${{ github.event.inputs.DEB_ARCH }}
+      DEB_DIST: ${{ github.event.inputs.DEB_DIST }}
+      DEB_RELEASE: ${{ github.event.inputs.DEB_RELEASE }}
+      DEB_VERSION: ${{ github.event.inputs.DEB_VERSION }}
+      LAUNCHPAD_PROJECT: ${{ github.event.inputs.LAUNCHPAD_PROJECT }}
+      LAUNCHPAD_PPA: ${{ github.event.inputs.LAUNCHPAD_PPA }}
     steps:
-      - name: setup
-        env:
-          DPUT_CF: ${{ secrets.DPUT_CF }}
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
-          SIGNING_OWNERTRUST: ${{ secrets.SIGNING_OWNERTRUST }}
-        run: |
-          sudo apt -y remove ansible || true
-          sudo apt -y remove ansible-base || true
-          sudo apt -y remove ansible-core || true
-          sudo apt -y autoremove
-
-          sudo apt -y install wget gpg gpg-agent
-
-          echo "${DPUT_CF}" > "${HOME}"/.dput.cf
-          echo "${SIGNING_KEY}" > "${HOME}"/signing.key
-          echo "${SIGNING_PASSPHRASE}" > "${HOME}"/signing.passphrase
-          echo "${SIGNING_OWNERTRUST}" > "${HOME}"/signing.ownertrust
-
-          gpg --import --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.key
-          gpg --import-ownertrust --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.ownertrust
-
       - name: checkout branch
         uses: actions/checkout@v2
         with:
-          ref: ansible-3
+          ref: ${{ github.ref }}
+
+      - name: run the setup action
+        uses: ./.github/actions
+        with:
+          LAUNCHPAD_PROJECT: ${{ github.event.inputs.LAUNCHPAD_PROJECT }}
+          LAUNCHPAD_PPA: ${{ github.event.inputs.LAUNCHPAD_PPA }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
+          SIGNING_OWNERTRUST: ${{ secrets.SIGNING_OWNERTRUST }}
 
       - name: build
         env:
-          DEB_NAME: ansible
-          DEB_VERSION: 3.4.0
-          DEB_RELEASE: 1ppa
-          DEB_DIST: hirsute groovy focal bionic
-          DEB_PPA: ansible-3
           DEBSIGN_KEYID: ${{ secrets.DEBSIGN_KEYID }}
           DEBSIGN_PROGRAM: gpg --pinentry-mode loopback --passphrase-file ${HOME}/signing.passphrase
           TARBALL_BASE_URL: https://pypi.python.org/packages/source
         run: |
+          echo "DEB_NAME=${DEB_NAME}"
+          echo "DEB_ARCH=${DEB_ARCH}"
+          echo "DEB_DIST=${DEB_DIST}"
+          echo "DEB_RELEASE=${DEB_RELEASE}"
+          echo "DEB_VERSION=${DEB_VERSION}"
+          echo "LAUNCHPAD_PROJECT=${LAUNCHPAD_PROJECT}"
+          echo "LAUNCHPAD_PPA=${LAUNCHPAD_PPA}"
+
           # handle different release types better in the changelog
           DEB_VERSION_EXTRA=$(echo "${DEB_VERSION}" | grep -Po '[a-z]+.*' || true)
 
@@ -85,5 +94,5 @@ jobs:
             cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
             debuild --source-option='-I' -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
             cd - || exit
-            dput "${DEB_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
+            dput "${LAUNCHPAD_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
           done
