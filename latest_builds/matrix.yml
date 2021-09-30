@@ -1,0 +1,181 @@
+---
+testing-ansible-2.8:
+  github_branch: ansible-2.8
+  packages:
+    - name: ansible
+      version_specifier: "~=2.8.0a"
+      dists:
+        - bionic
+testing-ansible-2.9:
+  github_branch: ansible-2.9
+  packages:
+    - name: ansible
+      version_specifier: "~=2.9.0a"
+      dists:
+        - trusty
+        - xenial
+        - bionic
+testing-ansible-2.10:
+  github_branch: ansible-2.10
+  packages:
+    - name: ansible-base
+      version_specifier: "~=2.10.0a"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+    - name: ansible
+      version_specifier: "~=2.10.0a"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+testing-ansible-3:
+  github_branch: ansible-3
+  packages:
+    - name: ansible-base
+      version_specifier: "~=2.10.0a"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+    - name: ansible
+      version_specifier: "~=3.0a"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+testing-ansible-4:
+  github_branch: ansible-4
+  packages:
+    - name: resolvelib
+      version_specifier: "==0.5.4"
+      dists:
+        - bionic
+        - focal
+    - name: ansible-core
+      version_specifier: "~=2.11.0a"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+        - impish
+    - name: ansible
+      version_specifier: "~=4.0a"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+        - impish
+testing-ansible-ansible-4:
+  github_branch: ansible-4
+  launchpad_ppa: testing-ansible
+  packages:
+    - name: resolvelib
+      version_specifier: "==0.5.4"
+      dists:
+        - bionic
+        - focal
+    - name: ansible-core
+      version_specifier: "~=2.11.0a"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+        - impish
+    - name: ansible
+      version_specifier: "~=4.0a"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+        - impish
+ansible-2.8:
+  packages:
+    - name: ansible
+      version_specifier: "~=2.8.0"
+      dists:
+        - bionic
+ansible-2.9:
+  packages:
+    - name: ansible
+      version_specifier: "~=2.9.0"
+      dists:
+        - trusty
+        - xenial
+        - bionic
+ansible-2.10:
+  packages:
+    - name: ansible-base
+      version_specifier: "~=2.10.0"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+    - name: ansible
+      version_specifier: "~=2.10.0"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+ansible-3:
+  packages:
+    - name: ansible-base
+      version_specifier: "~=2.10.0"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+    - name: ansible
+      version_specifier: "~=3.0"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+ansible-4:
+  packages:
+    - name: resolvelib
+      version_specifier: "==0.5.4"
+      dists:
+        - bionic
+        - focal
+    - name: ansible-core
+      version_specifier: "~=2.11.0"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+    - name: ansible
+      version_specifier: "~=4.0"
+      dists:
+        - bionic
+        - focal
+        - hirsute
+ansible-ansible-2.9:
+  github_branch: ansible-2.9
+  launchpad_ppa: ansible
+  packages:
+    - name: ansible
+      version_specifier: "~=2.9.0"
+      dists:
+        - trusty
+        - xenial
+        - bionic
+ansible-ansible-4:
+  github_branch: ansible-4
+  launchpad_ppa: ansible
+  packages:
+    - name: resolvelib
+      version_specifier: "==0.5.4"
+      dists:
+        - focal
+    - name: ansible-core
+      version_specifier: "~=2.11.0"
+      dists:
+        - focal
+        - hirsute
+    - name: ansible
+      version_specifier: "~=4.0"
+      dists:
+        - focal
+        - hirsute

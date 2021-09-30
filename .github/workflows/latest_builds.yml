@@ -1,0 +1,25 @@
+---
+name: latest builds
+on:
+  schedule:
+    - cron: "16 16 * * *"
+  workflow_dispatch: {}
+jobs:
+  kick_off_builds:
+    name: kick off builds
+    runs-on: ubuntu-20.04
+    steps:
+      - name: check out repo
+        uses: actions/checkout@v2
+
+      - name: run latest_builds.py
+        env:
+          GITHUB_API_URL: ${{ github.api_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_PAT: ${{ secrets.PAT }}
+          LAUNCHPAD_PROJECT: ${{ secrets.LAUNCHPAD_PROJECT }}
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r ${{ github.workspace }}/latest_builds/requirements.txt
+
+          python3 ${{ github.workspace }}/latest_builds/latest_builds.py

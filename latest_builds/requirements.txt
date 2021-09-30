@@ -1,0 +1,3 @@
+launchpadlib
+packaging
+requests
