@@ -67,6 +67,34 @@ testing-ansible-4:
         - focal
         - hirsute
         - impish
+testing-ansible-5:
+  github_branch: ansible-5
+  packages:
+    - name: resolvelib
+      version_specifier: "==0.5.4"
+      dists:
+        - focal
+    - name: ansible-core
+      version_specifier: "~=2.12.0a"
+      dists:
+        - focal
+        - hirsute
+        - impish
+    - name: ansible
+      version_specifier: "~=5.0a"
+      dists:
+        - focal
+        - hirsute
+        - impish
+testing-ansible-ansible-2.9:
+  github_branch: ansible-2.9
+  launchpad_ppa: testing-ansible
+  packages:
+    - name: ansible
+      version_specifier: "~=2.9.0a"
+      dists:
+        - trusty
+        - xenial
 testing-ansible-ansible-4:
   github_branch: ansible-4
   launchpad_ppa: testing-ansible
@@ -75,18 +103,31 @@ testing-ansible-ansible-4:
       version_specifier: "==0.5.4"
       dists:
         - bionic
-        - focal
     - name: ansible-core
       version_specifier: "~=2.11.0a"
       dists:
         - bionic
-        - focal
-        - hirsute
-        - impish
     - name: ansible
       version_specifier: "~=4.0a"
       dists:
         - bionic
+testing-ansible-ansible-5:
+  github_branch: ansible-5
+  launchpad_ppa: testing-ansible
+  packages:
+    - name: resolvelib
+      version_specifier: "==0.5.4"
+      dists:
+        - focal
+    - name: ansible-core
+      version_specifier: "~=2.12.0a"
+      dists:
+        - focal
+        - hirsute
+        - impish
+    - name: ansible
+      version_specifier: "~=5.0a"
+      dists:
         - focal
         - hirsute
         - impish
