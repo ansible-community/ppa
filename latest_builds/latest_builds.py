@@ -110,7 +110,8 @@ for build, config in matrix.items():
         try:
             latest_pypi_version = filtered_versions[0]
         except IndexError:
-            raise Exception("version not found within specifier set")
+            print(f"    '{package['name']}' version matching '{package['version_specifier']}' not found")
+            continue
 
         build_dists = []
 
