@@ -87,8 +87,8 @@ jobs:
             tar -C deb-build/"${DIST}" -xzf dist/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
             envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/templates/changelog > deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/changelog
 
-            sed -i 's/^Maintainer: Rick Elrod <relrod@redhat.com>/Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>\nUploaders: Ansible GitHub Actions <ansible-gha@redhat.com>/g' deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/control
-            sed -i 's/debhelper-compat (= 12)/debhelper-compat (= 11)/g' deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/control
+            # overwrite debian files using this repo's files
+            cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/debian/* deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/
 
             chmod +x deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/rules
             cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
