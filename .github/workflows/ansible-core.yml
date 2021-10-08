@@ -72,7 +72,7 @@ jobs:
           sudo apt -y install software-properties-common
           sudo add-apt-repository --yes --update ppa:"${LAUNCHPAD_PROJECT}"/"${LAUNCHPAD_PPA}"
 
-          sudo apt -y install make python python-packaging python-setuptools python3-straight.plugin python3-jinja2 python3-yaml python3-resolvelib python3-docutils devscripts cdbs debhelper dh-python python3-setuptools python3-packaging
+          sudo apt -y install make python3 python3-packaging python3-setuptools python3-straight.plugin python3-jinja2 python3-yaml python3-resolvelib python3-docutils devscripts cdbs debhelper dh-python
 
           mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
           rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*
@@ -83,7 +83,10 @@ jobs:
           # add DEBSIGN_PROGRAM option for non-interactive signing
           sed -Ei 's/(\s+DEBUILD_OPTS \+= -k\$\(DEBSIGN_KEYID\))$/\1 -p"$(DEBSIGN_PROGRAM)"/g' Makefile
 
+          # switch to environment variable PYTHON
+          sed -E 's/^(PYTHON)=/\1 ?= /g' docs/docsite/Makefile
+
           # overwrite debian files using this repo's files
           cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/debian/* packaging/debian/
 
-          time DEB_PPA="${LAUNCHPAD_PPA}" DEB_VERSION="${DEB_CHANGELOG_VERSION}" make deb-src-upload
+          time DEB_PPA="${LAUNCHPAD_PPA}" DEB_VERSION="${DEB_CHANGELOG_VERSION}" PYTHON=python3 make deb-src-upload
