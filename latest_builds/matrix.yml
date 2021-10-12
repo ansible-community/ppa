@@ -186,12 +186,14 @@ ansible-4:
         - bionic
         - focal
         - hirsute
+        - impish
     - name: ansible
       version_specifier: "~=4.0"
       dists:
         - bionic
         - focal
         - hirsute
+        - impish
 ansible-ansible-2.9:
   github_branch: ansible-2.9
   launchpad_ppa: ansible
@@ -215,8 +217,10 @@ ansible-ansible-4:
       dists:
         - focal
         - hirsute
+        - impish
     - name: ansible
       version_specifier: "~=4.0"
       dists:
         - focal
         - hirsute
+        - impish
