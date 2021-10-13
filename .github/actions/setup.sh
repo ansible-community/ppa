@@ -21,4 +21,4 @@ printenv SIGNING_PASSPHRASE > "${HOME}"/signing.passphrase
 printenv SIGNING_OWNERTRUST > "${HOME}"/signing.ownertrust
 
 gpg --import --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.key
-gpg --import-ownertrust --batch --pinentry-mode loopback --passphrase-file "${HOME}"/signing.passphrase "${HOME}"/signing.ownertrust
+gpg --import-ownertrust "${HOME}"/signing.ownertrust
