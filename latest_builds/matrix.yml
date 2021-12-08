@@ -194,6 +194,25 @@ ansible-4:
         - focal
         - hirsute
         - impish
+ansible-5:
+  github_branch: ansible-5
+  packages:
+    - name: resolvelib
+      version_specifier: "==0.5.4"
+      dists:
+        - focal
+    - name: ansible-core
+      version_specifier: "~=2.12.0"
+      dists:
+        - focal
+        - hirsute
+        - impish
+    - name: ansible
+      version_specifier: "~=5.0"
+      dists:
+        - focal
+        - hirsute
+        - impish
 ansible-ansible-2.9:
   github_branch: ansible-2.9
   launchpad_ppa: ansible
@@ -204,8 +223,8 @@ ansible-ansible-2.9:
         - trusty
         - xenial
         - bionic
-ansible-ansible-4:
-  github_branch: ansible-4
+ansible-ansible-5:
+  github_branch: ansible-5
   launchpad_ppa: ansible
   packages:
     - name: resolvelib
@@ -213,13 +232,13 @@ ansible-ansible-4:
       dists:
         - focal
     - name: ansible-core
-      version_specifier: "~=2.11.0"
+      version_specifier: "~=2.12.0"
       dists:
         - focal
         - hirsute
         - impish
     - name: ansible
-      version_specifier: "~=4.0"
+      version_specifier: "~=5.0"
       dists:
         - focal
         - hirsute
