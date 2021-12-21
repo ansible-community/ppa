@@ -1,11 +1,4 @@
 ---
-testing-ansible-2.8:
-  github_branch: ansible-2.8
-  packages:
-    - name: ansible
-      version_specifier: "~=2.8.0a"
-      dists:
-        - bionic
 testing-ansible-2.9:
   github_branch: ansible-2.9
   packages:
@@ -131,12 +124,6 @@ testing-ansible-ansible-5:
         - focal
         - hirsute
         - impish
-ansible-2.8:
-  packages:
-    - name: ansible
-      version_specifier: "~=2.8.0"
-      dists:
-        - bionic
 ansible-2.9:
   packages:
     - name: ansible
