@@ -15,7 +15,7 @@ Architecture: all
 Depends: ansible-core, ${misc:Depends}, ${python3:Depends}
 Recommends: python3-jmespath, python3-winrm
 # Suggests: python-ansible-doc
-Description: ansible collections for {{ ansible_core_package_name }}
+Description: batteries-included package providing a curated set of Ansible collections in addition to ansible-core
 
 # Package: python-ansible-doc
 # Architecture: all
