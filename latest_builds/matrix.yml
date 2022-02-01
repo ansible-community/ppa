@@ -16,13 +16,11 @@ testing-ansible-2.10:
       dists:
         - bionic
         - focal
-        - hirsute
     - name: ansible
       version_specifier: "~=2.10.0a"
       dists:
         - bionic
         - focal
-        - hirsute
 testing-ansible-3:
   github_branch: ansible-3
   packages:
@@ -31,13 +29,11 @@ testing-ansible-3:
       dists:
         - bionic
         - focal
-        - hirsute
     - name: ansible
       version_specifier: "~=3.0a"
       dists:
         - bionic
         - focal
-        - hirsute
 testing-ansible-4:
   github_branch: ansible-4
   packages:
@@ -51,14 +47,12 @@ testing-ansible-4:
       dists:
         - bionic
         - focal
-        - hirsute
         - impish
     - name: ansible
       version_specifier: "~=4.0a"
       dists:
         - bionic
         - focal
-        - hirsute
         - impish
 testing-ansible-5:
   github_branch: ansible-5
@@ -71,13 +65,11 @@ testing-ansible-5:
       version_specifier: "~=2.12.0a"
       dists:
         - focal
-        - hirsute
         - impish
     - name: ansible
       version_specifier: "~=5.0a"
       dists:
         - focal
-        - hirsute
         - impish
 testing-ansible-ansible-2.9:
   github_branch: ansible-2.9
@@ -116,13 +108,11 @@ testing-ansible-ansible-5:
       version_specifier: "~=2.12.0a"
       dists:
         - focal
-        - hirsute
         - impish
     - name: ansible
       version_specifier: "~=5.0a"
       dists:
         - focal
-        - hirsute
         - impish
 ansible-2.9:
   packages:
@@ -139,13 +129,11 @@ ansible-2.10:
       dists:
         - bionic
         - focal
-        - hirsute
     - name: ansible
       version_specifier: "~=2.10.0"
       dists:
         - bionic
         - focal
-        - hirsute
 ansible-3:
   packages:
     - name: ansible-base
@@ -153,13 +141,11 @@ ansible-3:
       dists:
         - bionic
         - focal
-        - hirsute
     - name: ansible
       version_specifier: "~=3.0"
       dists:
         - bionic
         - focal
-        - hirsute
 ansible-4:
   packages:
     - name: resolvelib
@@ -172,14 +158,12 @@ ansible-4:
       dists:
         - bionic
         - focal
-        - hirsute
         - impish
     - name: ansible
       version_specifier: "~=4.0"
       dists:
         - bionic
         - focal
-        - hirsute
         - impish
 ansible-5:
   github_branch: ansible-5
@@ -192,13 +176,11 @@ ansible-5:
       version_specifier: "~=2.12.0"
       dists:
         - focal
-        - hirsute
         - impish
     - name: ansible
       version_specifier: "~=5.0"
       dists:
         - focal
-        - hirsute
         - impish
 ansible-ansible-2.9:
   github_branch: ansible-2.9
@@ -222,11 +204,9 @@ ansible-ansible-5:
       version_specifier: "~=2.12.0"
       dists:
         - focal
-        - hirsute
         - impish
     - name: ansible
       version_specifier: "~=5.0"
       dists:
         - focal
-        - hirsute
         - impish
