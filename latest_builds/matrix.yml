@@ -66,11 +66,13 @@ testing-ansible-5:
       dists:
         - focal
         - impish
+        - jammy
     - name: ansible
       version_specifier: "~=5.0a"
       dists:
         - focal
         - impish
+        - jammy
 testing-ansible-ansible-2.9:
   github_branch: ansible-2.9
   launchpad_ppa: testing-ansible
@@ -109,11 +111,13 @@ testing-ansible-ansible-5:
       dists:
         - focal
         - impish
+        - jammy
     - name: ansible
       version_specifier: "~=5.0a"
       dists:
         - focal
         - impish
+        - jammy
 ansible-2.9:
   packages:
     - name: ansible
