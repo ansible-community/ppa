@@ -79,7 +79,7 @@ Along with the `main` branch, there is currently a branch for each major Ansible
 
 ## GitHub Actions / Workflows
 
-Currently, GitHub will only run `cron` scheduled workflows on the `main` branch (also note: `cron` scheduled workflows are disabled after 60 days of "inactivity"). So instead of running each of the individual branches as their own scheduled workflow, we use the `latest_builds.yml` workflow on the `main` branch to kick off builds on the other branches (via the PAT) as necessary.
+Currently, GitHub will only run `cron` scheduled workflows on the `main` branch (also note: `cron` scheduled workflows are disabled after 60 days of "inactivity"). So instead of running each of the individual branches as their own scheduled workflow, we use the `latest_builds.yml` workflow on the `main` branch to kick off builds on the other branches (via the repo `secret` `PAT` (GitHub Personal Access Token)) as necessary.
 
 The `latest_builds.yml` workflow uses the `latest_builds/requirements.txt` file to install the required packages and then runs the `latest_builds/latest_builds.py` script. The `latest_builds/latest_builds.py` script uses the `latest_builds/matrix.yml` to compare PyPI and against the various https://launchpad.net/~ansible PPAs to see if a new build is necessary. If a new build is necessary it triggers the appropriate workflow on the appropriate branch.
 
@@ -201,7 +201,7 @@ Manual runs of the `latest_builds.yml` workflow can be triggered via the GitHub 
 | --- | --- | --- |
 | `DEBSIGN_KEYID` | Deb signing key ID | `4697549E1287BC6A1A481B98DE6FE1F1C7DBF004` |
 | `LAUNCHPAD_PROJECT` | Launchpad project name | `~ansible` |
-| `PAT` | GitHub PAT for starting additional workflows | `ghp_ACTUAL_GITHUB_PAT_TOKEN_GOES_HERE` |
+| `PAT` | GitHub PAT for starting additional workflows (only requires the `public_repo` scope) | `ghp_ACTUAL_GITHUB_PAT_TOKEN_GOES_HERE` |
 | `SIGNING_KEY` | Armored signing key | <pre>-----BEGIN PGP PRIVATE KEY BLOCK-----<br/><br/>xcaGBGFLvFkBEADQbd7DocOo9XzMo5PD<br/>RX4Nxw4UHWJGjzdBZgmKzk+vLuTR+Cr8<br/>...<br/>tTtohAGXcR9EYhHemdVrew==<br/>=4DaA<br/>-----END PGP PRIVATE KEY BLOCK-----</pre> |
 | `SIGNING_OWNERTRUST` | Import-able ownertrust string | `4697549E1287BC6A1A481B98DE6FE1F1C7DBF004:6:` |
 | `SIGNING_PASSPHRASE` | Signing key passphrase | `PASSPHRASE_USED_FOR_SIGNING_KEY` |
