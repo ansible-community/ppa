@@ -193,6 +193,123 @@ Manual runs of the `latest_builds.yml` workflow can be triggered via the GitHub 
 | `LAUNCHPAD_PROJECT` | Name of the Launchpad Project to use <br> Ex: `~ansible` would reference https://launchpad.net/~ansible |
 | `LAUNCHPAD_PPA` | Name of the PPA under the Launchpad Project to use <br> Ex: `ansible-5` with the `LAUNCHPAD_PROJECT` value of `~ansible` would reference https://launchpad.net/~ansible/+archive/ubuntu/ansible-5 |
 
+## Lifecycle
+
+### New versions
+
+Example of adding a new build: Ansible 6
+
+1. Create a new `ansible-6` branch in the repo
+1. Create a new `testing-ansible-6` PPA
+1. Based on the `ansible-core` / `ansible` requirements determine which versions of Ubuntu make sense and what other requirements you might need to provide
+    1. Check the release cycle for currently supported Ubuntu releases https://ubuntu.com/about/release-cycle
+    1. Check the provided `python3` versions https://packages.ubuntu.com/search?keywords=python3&searchon=names&exact=1&suite=all&section=all
+    1. Check the provided `resolvelib` versions https://packages.ubuntu.com/search?keywords=python3-resolvelib&searchon=names&exact=1&suite=all&section=all
+1. Use the version information to create an entry in the `latest_builds/matrix.yml`
+    ```
+    testing-ansible-6:  # name used for PPA unless launchpad_ppa is specified
+      github_branch: ansible-6
+      packages:
+        - name: resolvelib
+          version_specifier: "==0.5.4"
+          dists:
+            - focal
+        - name: ansible-core
+          version_specifier: "~=2.13.0a"  # includes alpha releases
+          dists:
+            - focal
+            - impish
+            - jammy
+        - name: ansible
+          version_specifier: "~=6.0a"  # includes alpha releases
+          dists:
+            - focal
+            - impish
+            - jammy
+    ```
+    For more information on the `version_specifier` see https://packaging.pypa.io/en/latest/specifiers.html
+1. Update the build matrix in https://github.com/ansible-community/ppa/issues/1
+1. Wait for the next scheduled run or manually kick off another build.
+1. Once the builds are completed successfully, add (or bump the version of an existing entry) for the `testing-ansible` PPA
+    ```
+    testing-ansible-ansible-6:
+      github_branch: ansible-6
+      launchpad_ppa: testing-ansible  # name used for the PPA
+      packages:
+        - name: resolvelib
+          version_specifier: "==0.5.4"
+          dists:
+            - focal
+        - name: ansible-core
+          version_specifier: "~=2.13.0a"
+          dists:
+            - focal
+            - impish
+            - jammy
+        - name: ansible
+          version_specifier: "~=6.0a"
+          dists:
+            - focal
+            - impish
+            - jammy
+    ```
+1. Once the testing is completed, repeat the process for the non-testing PPAs
+    1. Create a new `ansible-6` PPA
+    1. Add / modify the appropriate entries to the `latest_builds/matrix.yml`
+        ```
+        ansible-6:
+          github_branch: ansible-6
+          packages:
+            - name: resolvelib
+              version_specifier: "==0.5.4"
+              dists:
+                - focal
+            - name: ansible-core
+              version_specifier: "~=2.13.0"
+              dists:
+                - focal
+                - impish
+                - jammy
+            - name: ansible
+              version_specifier: "~=6.0"
+              dists:
+                - focal
+                - impish
+                - jammy
+        ```
+
+        ```
+        ansible-ansible-6:
+          github_branch: ansible-6
+          launchpad_ppa: ansible
+          packages:
+            - name: resolvelib
+              version_specifier: "==0.5.4"
+              dists:
+                - focal
+            - name: ansible-core
+              version_specifier: "~=2.13.0"
+              dists:
+                - focal
+                - impish
+                - jammy
+            - name: ansible
+              version_specifier: "~=6.0"
+              dists:
+                - focal
+                - impish
+                - jammy
+        ```
+
+### Old versions
+
+Old versions will begin to age out automatically in 1 of 2 ways:
+
+1. Once the Ubuntu version hits the end of its lifecycle, launchpad will start rejecting new builds for that version. At the point, it's a good idea to remove that dist from the matrix to save on unnecessary builds.
+1. Shortly after a new major release of Ansible, the previous major release will stop updating, therefore it will not trigger any new builds for older versions.
+
+Previously, old PPAs / releases were left alone for archival purposes.
+
 ## Repo Requirements
 
 ### Secrets
