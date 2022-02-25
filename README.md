@@ -275,7 +275,7 @@ Example of adding a new build: Ansible 6
             - impish
             - jammy
     ```
-1. Once the testing is completed, repeat the process for the non-testing PPAs
+1. Once the testing (see [test/README.md](test/README.md) for an example) is completed, repeat the process for the non-testing PPAs
     1. Create a new `ansible-6` PPA
     1. Add / modify the appropriate entries to the `latest_builds/matrix.yml`
         ```
