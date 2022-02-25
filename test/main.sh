@@ -48,7 +48,6 @@ docker container run --rm \
     -e PPA=${PPA} \
     ubuntu:${CODE_NAME} /bin/bash /tmp/script.lib
 
-# docker run --rm --name=${PPA}-${CODE_NAME} --pull always -v $(pwd)/script.lib:/tmp/script.lib -e PPA=${PPA} ubuntu:${CODE_NAME} /bin/bash /tmp/script.lib
 
 #TODO
 #
