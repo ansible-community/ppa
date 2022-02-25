@@ -53,12 +53,4 @@ docker container run --rm \
 #TODO
 #
 # 1.
-# for CODE_NAME in trusty xenial bionic focal impish jammy; do
-#   for PPA in ansible testing-ansible; do
-#     echo "running ${CODE_NAME} with ${PPA}";
-#     ./main.sh -c ${CODE_NAME} -p ${PPA}
-#   done
-# done
-#
-# 2.
 # Format the output.

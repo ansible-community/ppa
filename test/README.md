@@ -28,3 +28,14 @@ Usage:
 ```
 ./main.sh -c impish -p ansible
 ```
+
+Example Loop to Test [Published Version Matrix](https://github.com/ansible-community/ppa/issues/1)
+
+```
+for CODE_NAME in trusty xenial bionic focal impish jammy; do
+  for PPA in ansible testing-ansible; do
+    echo "running ${CODE_NAME} with ${PPA}";
+    ./main.sh -c ${CODE_NAME} -p ${PPA}
+  done
+done
+```
