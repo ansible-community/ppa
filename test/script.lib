@@ -1,0 +1,48 @@
+# script.lib
+#
+
+# Configure Timezone and Install "software-properties-common"
+TZ=America/New_York && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+apt-get update && apt -y install software-properties-common
+
+# Add ansible launchpad-ppa to system Software Sources.
+add-apt-repository ppa:ansible/${PPA}
+apt-get update
+
+# Install Ansible
+apt install -y ansible
+
+# Check Ansible version
+ansible --version
+
+# Ad-hoc command 
+ansible localhost -m ping
+
+# Install a collection using ansible-galaxy utility
+ansible-galaxy collection install community.crypto
+
+# Check ansible-doc utility
+ansible-doc ping
+
+# create a example.yml playbook
+tee -a /tmp/example.yml << EOF
+---
+- name: Test Playbook
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars_files:
+    - /tmp/test_vault.yml
+
+  tasks:
+    - name: Check localhost connectivity using ping
+      ping:
+
+    - name: Print message from the encrypted file
+      debug:
+        var: MESSAGE
+EOF
+
+# Run the example.yml Playbook
+ansible-playbook -i localhost, /tmp/example.yml --vault-password-file /tmp/vault_pass
