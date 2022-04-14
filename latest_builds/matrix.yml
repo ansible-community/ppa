@@ -209,8 +209,11 @@ ansible-ansible-5:
       dists:
         - focal
         - impish
+        - jammy
     - name: ansible
       version_specifier: "~=5.0"
       dists:
         - focal
         - impish
+        - jammy
+
