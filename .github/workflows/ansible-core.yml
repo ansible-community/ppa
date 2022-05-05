@@ -89,6 +89,7 @@ jobs:
 
             mkdir -p deb-build/"${DIST}"
             tar -C deb-build/"${DIST}" -xzf dist/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
+            mkdir deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian
             envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/templates/changelog > deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/changelog
             
             # overwrite debian files using this repo's files
