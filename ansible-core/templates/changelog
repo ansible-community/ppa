@@ -2,4 +2,4 @@ ${DEB_NAME} (${DEB_CHANGELOG_VERSION}-${DEB_RELEASE}~${DIST}) ${DIST}; urgency=l
 
   * ${DEB_CHANGELOG_VERSION} release
 
- -- Ansible Community Builds <ansible-community-builds@redhat.com>  ${DATE}
+ --  Ansible, Inc. <info@ansible.com> ${DATE}
