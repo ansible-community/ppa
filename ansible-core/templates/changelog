@@ -1,0 +1,5 @@
+${DEB_NAME} (${DEB_CHANGELOG_VERSION}-${DEB_RELEASE}~${DIST}) ${DIST}; urgency=low
+
+  * ${DEB_CHANGELOG_VERSION} release
+
+ -- Ansible, Inc. <info@ansible.com> ${DATE}
