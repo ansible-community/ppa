@@ -1,5 +1,5 @@
 ---
-name: resolvelib
+name: jinja2
 on:
   workflow_dispatch:
     inputs:
