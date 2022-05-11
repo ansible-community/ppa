@@ -1,4 +1,4 @@
-Source: jinja2
+Source: Jinja2
 Section: python
 Priority: optional
 Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>
