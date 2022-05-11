@@ -1,5 +1,5 @@
 ---
-name: jinja2
+name: Jinja2
 on:
   push:
     branches:
@@ -22,10 +22,10 @@ on:
         required: true
 jobs:
   build_jinja2:
-    name: Build jinja2
+    name: Build Jinja2
     runs-on: ubuntu-20.04
     env:
-      DEB_NAME: jinja2
+      DEB_NAME: Jinja2
       DEB_ARCH: ${{ github.event.inputs.DEB_ARCH }}
       DEB_DIST: ${{ github.event.inputs.DEB_DIST }}
       DEB_RELEASE: ${{ github.event.inputs.DEB_RELEASE }}
