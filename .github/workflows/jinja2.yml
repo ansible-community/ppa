@@ -1,6 +1,9 @@
 ---
 name: resolvelib
 on:
+  push:
+    branches:
+      - 'ansible-6'
   workflow_dispatch:
     inputs:
       DEB_ARCH:
