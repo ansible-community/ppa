@@ -1,0 +1,16 @@
+Source: jinja2
+Section: python
+Priority: optional
+Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>
+Uploaders: Ansible GitHub Actions <ansible-gha@redhat.com>
+Build-Depends: debhelper (>=11~), dh-python, python3-all, python3-setuptools
+Standards-Version: 4.1.4
+Homepage: https://github.com/pallets/jinja/
+
+Package: python3-jinja2
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: A very fast and expressive template engine
+ Jinja is a fast, expressive, extensible templating engine. Special 
+ placeholders in the template allow writing code similar to Python 
+ syntax. Then the template is passed data to render the final document.
