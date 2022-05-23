@@ -5,6 +5,7 @@ sudo apt -y remove ansible-base || true
 sudo apt -y remove ansible-core || true
 sudo apt -y autoremove
 
+sudo apt-get udpate
 sudo apt -y install gpg gpg-agent wget
 
 cat > "${HOME}"/.dput.cf << EOF
