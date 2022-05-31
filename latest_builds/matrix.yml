@@ -1,26 +1,4 @@
 ---
-testing-ansible-2.9:
-  github_branch: ansible-2.9
-  packages:
-    - name: ansible
-      version_specifier: "~=2.9.0a"
-      dists:
-        - trusty
-        - xenial
-        - bionic
-testing-ansible-2.10:
-  github_branch: ansible-2.10
-  packages:
-    - name: ansible-base
-      version_specifier: "~=2.10.0a"
-      dists:
-        - bionic
-        - focal
-    - name: ansible
-      version_specifier: "~=2.10.0a"
-      dists:
-        - bionic
-        - focal
 testing-ansible-3:
   github_branch: ansible-3
   packages:
@@ -73,15 +51,6 @@ testing-ansible-5:
         - focal
         - impish
         - jammy
-testing-ansible-ansible-2.9:
-  github_branch: ansible-2.9
-  launchpad_ppa: testing-ansible
-  packages:
-    - name: ansible
-      version_specifier: "~=2.9.0a"
-      dists:
-        - trusty
-        - xenial
 testing-ansible-ansible-4:
   github_branch: ansible-4
   launchpad_ppa: testing-ansible
@@ -118,26 +87,6 @@ testing-ansible-ansible-5:
         - focal
         - impish
         - jammy
-ansible-2.9:
-  packages:
-    - name: ansible
-      version_specifier: "~=2.9.0"
-      dists:
-        - trusty
-        - xenial
-        - bionic
-ansible-2.10:
-  packages:
-    - name: ansible-base
-      version_specifier: "~=2.10.0"
-      dists:
-        - bionic
-        - focal
-    - name: ansible
-      version_specifier: "~=2.10.0"
-      dists:
-        - bionic
-        - focal
 ansible-3:
   packages:
     - name: ansible-base
@@ -186,16 +135,6 @@ ansible-5:
       dists:
         - focal
         - impish
-ansible-ansible-2.9:
-  github_branch: ansible-2.9
-  launchpad_ppa: ansible
-  packages:
-    - name: ansible
-      version_specifier: "~=2.9.0"
-      dists:
-        - trusty
-        - xenial
-        - bionic
 ansible-ansible-5:
   github_branch: ansible-5
   launchpad_ppa: ansible
@@ -212,25 +151,6 @@ ansible-ansible-5:
         - jammy
     - name: ansible
       version_specifier: "~=5.0"
-      dists:
-        - focal
-        - impish
-        - jammy
-testing-ansible-6:
-  github_branch: ansible-6
-  packages:
-    - name: resolvelib
-      version_specifier: "==0.5.4"
-      dists:
-        - focal
-    - name: ansible-core
-      version_specifier: "~=2.13.0a"
-      dists:
-        - focal
-        - impish
-        - jammy
-    - name: ansible
-      version_specifier: "~=6.0a"
       dists:
         - focal
         - impish
