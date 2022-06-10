@@ -12,7 +12,8 @@ Architecture: all
 Replaces: ansible (<< 2.10.0), ansible-base
 Breaks: ansible (<< 2.10.0), ansible-base
 Depends: python3-cryptography, python3-jinja2, python3-packaging, python3-resolvelib, python3-yaml, ${misc:Depends}, ${python3:Depends}
-Recommends: ansible, python3-paramiko, sshpass
+Recommends: python3-paramiko, sshpass
+Suggests: ansible
 Description: Ansible IT Automation
  Ansible is a radically simple model-driven configuration management,
  multi-node deployment, and remote task execution system. Ansible works
