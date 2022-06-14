@@ -79,11 +79,7 @@ jobs:
           wget "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME}"/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
           tar -xzf "${DEB_NAME}"-"${DEB_VERSION}".tar.gz
           cd "${DEB_NAME}"-"${DEB_VERSION}" || exit
-          cd ./lib/ansible/_vendor/ || exit
-          wget https://pypi.python.org/packages/source/J/Jinja2/Jinja2-3.1.2.tar.gz
-          tar -xzf Jinja2-3.1.2.tar.gz
-          rm -rf Jinja2-3.1.2.tar.gz
-          cd ../../../ || exit
+          pip install --upgrade -t ./lib/ansible/_vendor/ jinja2==3.1.2
           _ANSIBLE_SDIST_FROM_MAKEFILE=1 python3 setup.py sdist --dist-dir=dist
 
           DATE=$(date -R)
