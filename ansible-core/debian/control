@@ -11,7 +11,7 @@ Package: ansible-core
 Architecture: all
 Replaces: ansible (<< 2.10.0), ansible-base
 Breaks: ansible (<< 2.10.0), ansible-base
-Depends: python3-cryptography, python3-packaging, python3-resolvelib, python3-yaml, ${python3:Depends}
+Depends: python3-cryptography, python3-packaging, python3-resolvelib, python3-yaml
 Recommends: python3-paramiko, sshpass
 Suggests: ansible
 Description: Ansible IT Automation
