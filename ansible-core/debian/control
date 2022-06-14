@@ -4,7 +4,7 @@ Priority: optional
 Standards-Version: 3.9.3
 Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>
 Uploaders: Ansible GitHub Actions <ansible-gha@redhat.com>
-Build-Depends: cdbs, debhelper (>= 5.0.0), python3-docutils, python3, dh-python | python-support, python3-setuptools, lsb-release, python3-straight.plugin, python3-packaging, python3-jinja2
+Build-Depends: cdbs, debhelper (>= 5.0.0), python3-docutils, python3, dh-python | python-support, python3-setuptools, lsb-release, python3-straight.plugin, python3-packaging
 Homepage: https://github.com/ansible/ansible/
 
 Package: ansible-core
