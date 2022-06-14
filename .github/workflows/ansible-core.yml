@@ -72,13 +72,18 @@ jobs:
           sudo apt -y install software-properties-common
           sudo add-apt-repository --yes --update ppa:"${LAUNCHPAD_PROJECT}"/"${LAUNCHPAD_PPA}"
 
-          sudo apt -y install make python3 python3-packaging python3-setuptools python3-straight.plugin python3-jinja2 python3-yaml python3-resolvelib python3-docutils devscripts cdbs debhelper dh-python
+          sudo apt -y install make python3 python3-packaging python3-setuptools python3-straight.plugin python3-yaml python3-resolvelib python3-docutils devscripts cdbs debhelper dh-python
 
           mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
           rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*
           wget "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME}"/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
           tar -xzf "${DEB_NAME}"-"${DEB_VERSION}".tar.gz
           cd "${DEB_NAME}"-"${DEB_VERSION}" || exit
+          cd ./lib/ansible/_vendor/ || exit
+          wget https://pypi.python.org/packages/source/J/Jinja2/Jinja2-3.1.2.tar.gz
+          tar -xzf Jinja2-3.1.2.tar.gz
+          rm -rf Jinja2-3.1.2.tar.gz
+          cd ../../../ || exit
           _ANSIBLE_SDIST_FROM_MAKEFILE=1 python3 setup.py sdist --dist-dir=dist
 
           DATE=$(date -R)
