@@ -101,7 +101,12 @@ jobs:
 
             chmod +x deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/rules
             cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
+            
             pip install --upgrade -t ./lib/ansible/_vendor/ jinja2=="${JINJA2_VERSION}"
+            if [ "${DIST}" == "focal" ] || [ "${DIST}" == "impish" ]; then
+              pip install --upgrade -t ./lib/ansible/_vendor/ resolvelib==0.8.0
+            fi
+            
             debuild --source-option='-I' -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
             cd - || exit
             dput "${LAUNCHPAD_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
