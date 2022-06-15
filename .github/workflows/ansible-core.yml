@@ -17,6 +17,9 @@ on:
         required: true
       LAUNCHPAD_PPA:
         required: true
+      JINJA2_VERSION:
+        required: true
+        default: 3.1.2
 jobs:
   build_ansible_core:
     name: Build ansible-core
@@ -29,6 +32,7 @@ jobs:
       DEB_VERSION: ${{ github.event.inputs.DEB_VERSION }}
       LAUNCHPAD_PROJECT: ${{ github.event.inputs.LAUNCHPAD_PROJECT }}
       LAUNCHPAD_PPA: ${{ github.event.inputs.LAUNCHPAD_PPA }}
+      JINJA2_VERSION: ${{ github.event.inputs.JINJA2_VERSION }}
     steps:
       - name: checkout branch
         uses: actions/checkout@v2
@@ -79,7 +83,6 @@ jobs:
           wget "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME}"/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
           tar -xzf "${DEB_NAME}"-"${DEB_VERSION}".tar.gz
           cd "${DEB_NAME}"-"${DEB_VERSION}" || exit
-          pip install --upgrade -t ./lib/ansible/_vendor/ jinja2==3.1.2
           _ANSIBLE_SDIST_FROM_MAKEFILE=1 python3 setup.py sdist --dist-dir=dist
 
           DATE=$(date -R)
@@ -98,6 +101,7 @@ jobs:
 
             chmod +x deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/rules
             cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
+            pip install --upgrade -t ./lib/ansible/_vendor/ jinja2=="${JINJA2_VERSION}"
             debuild --source-option='-I' -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
             cd - || exit
             dput "${LAUNCHPAD_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
