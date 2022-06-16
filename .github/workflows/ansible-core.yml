@@ -20,6 +20,9 @@ on:
       JINJA2_VERSION:
         required: true
         default: 3.1.2
+      RESOLVELIB_VERSION:
+        required: true
+        default: 0.8.0
 jobs:
   build_ansible_core:
     name: Build ansible-core
@@ -33,6 +36,7 @@ jobs:
       LAUNCHPAD_PROJECT: ${{ github.event.inputs.LAUNCHPAD_PROJECT }}
       LAUNCHPAD_PPA: ${{ github.event.inputs.LAUNCHPAD_PPA }}
       JINJA2_VERSION: ${{ github.event.inputs.JINJA2_VERSION }}
+      RESOLVELIB_VERSION: ${{ github.event.inputs.RESOLVELIB_VERSION }}
     steps:
       - name: checkout branch
         uses: actions/checkout@v2
@@ -62,6 +66,7 @@ jobs:
           echo "DEB_VERSION=${DEB_VERSION}"
           echo "LAUNCHPAD_PROJECT=${LAUNCHPAD_PROJECT}"
           echo "LAUNCHPAD_PPA=${LAUNCHPAD_PPA}"
+          echo "RESOLVELIB_VERSION=${RESOLVELIB_VERSION}"
 
           # handle different release types better in the changelog
           DEB_VERSION_EXTRA=$(echo "${DEB_VERSION}" | grep -Po '[a-z]+.*' || true)
