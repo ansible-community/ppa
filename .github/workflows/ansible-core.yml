@@ -116,8 +116,11 @@ jobs:
             cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
             
             if [ "${DIST}" == "focal" ] || [ "${DIST}" == "impish" ]; then
+              cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/control_file/control_focal_impish ./debian/control
               pip install --upgrade -t ./lib/ansible/_vendor/ jinja2=="${JINJA2_VERSION}" resolvelib=="${RESOLVELIB_VERSION}"
               echo -e "debian/tmp/usr/lib/python3/dist-packages/ansible/lib/ansible/_vendor/Jinja2-*.dist-info\ndebian/tmp/usr/lib/python3/dist-packages/ansible/lib/ansible/_vendor/MarkupSafe-*.dist-info\ndebian/tmp/usr/lib/python3/dist-packages/ansible/lib/ansible/_vendor/resolvelib-*.dist-info" >> debian/ansible-core.install
+            else
+              cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/control_file/control ./debian/control
             fi
             
             debuild --source-option='-I' -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
