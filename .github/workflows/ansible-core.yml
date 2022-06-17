@@ -113,7 +113,7 @@ jobs:
               export DEST=usr/lib/python3/dist-packages/ansible/_vendor
               echo "lib/ansible/_vendor/Jinja2-${JINJA2_VERSION}.dist-info ${DEST}" >> ./debian/ansible-core.install
               echo "lib/ansible/_vendor/MarkupSafe-2.1.1.dist-info ${DEST}" >> ./debian/ansible-core.install
-              echo "lib/ansible/_vendor/resolvelib-"${RESOLVELIB_VERSION}.dist-info ${DEST}" >> ./debian/ansible-core.install
+              echo "lib/ansible/_vendor/resolvelib-${RESOLVELIB_VERSION}.dist-info ${DEST}" >> ./debian/ansible-core.install
             else
               cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/control_file/control ./debian/control
             fi
