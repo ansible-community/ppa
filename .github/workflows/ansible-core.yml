@@ -17,6 +17,12 @@ on:
         required: true
       LAUNCHPAD_PPA:
         required: true
+      JINJA2_VERSION:
+        required: true
+        default: 3.1.2
+      RESOLVELIB_VERSION:
+        required: true
+        default: 0.8.0
 jobs:
   build_ansible_core:
     name: Build ansible-core
@@ -29,6 +35,8 @@ jobs:
       DEB_VERSION: ${{ github.event.inputs.DEB_VERSION }}
       LAUNCHPAD_PROJECT: ${{ github.event.inputs.LAUNCHPAD_PROJECT }}
       LAUNCHPAD_PPA: ${{ github.event.inputs.LAUNCHPAD_PPA }}
+      JINJA2_VERSION: ${{ github.event.inputs.JINJA2_VERSION }}
+      RESOLVELIB_VERSION: ${{ github.event.inputs.RESOLVELIB_VERSION }}
     steps:
       - name: checkout branch
         uses: actions/checkout@v2
@@ -58,6 +66,7 @@ jobs:
           echo "DEB_VERSION=${DEB_VERSION}"
           echo "LAUNCHPAD_PROJECT=${LAUNCHPAD_PROJECT}"
           echo "LAUNCHPAD_PPA=${LAUNCHPAD_PPA}"
+          echo "RESOLVELIB_VERSION=${RESOLVELIB_VERSION}"
 
           # handle different release types better in the changelog
           DEB_VERSION_EXTRA=$(echo "${DEB_VERSION}" | grep -Po '[a-z]+.*' || true)
@@ -72,7 +81,7 @@ jobs:
           sudo apt -y install software-properties-common
           sudo add-apt-repository --yes --update ppa:"${LAUNCHPAD_PROJECT}"/"${LAUNCHPAD_PPA}"
 
-          sudo apt -y install make python3 python3-packaging python3-setuptools python3-straight.plugin python3-jinja2 python3-yaml python3-resolvelib python3-docutils devscripts cdbs debhelper dh-python
+          sudo apt -y install make python3 python3-packaging python3-setuptools python3-straight.plugin python3-yaml python3-docutils devscripts cdbs debhelper dh-python
 
           mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
           rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*
@@ -97,6 +106,18 @@ jobs:
 
             chmod +x deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/rules
             cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
+
+            if [ "${DIST}" == "focal" ] || [ "${DIST}" == "impish" ]; then
+              cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/control_file/control_focal_impish ./debian/control
+              pip install --upgrade -t ./lib/ansible/_vendor/ jinja2=="${JINJA2_VERSION}" resolvelib=="${RESOLVELIB_VERSION}"
+              export DEST=usr/lib/python3/dist-packages/ansible/_vendor
+              echo "lib/ansible/_vendor/Jinja2-${JINJA2_VERSION}.dist-info ${DEST}" >> ./debian/ansible-core.install
+              echo "lib/ansible/_vendor/MarkupSafe-2.1.1.dist-info ${DEST}" >> ./debian/ansible-core.install
+              echo "lib/ansible/_vendor/resolvelib-${RESOLVELIB_VERSION}.dist-info ${DEST}" >> ./debian/ansible-core.install
+            else
+              cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/control_file/control ./debian/control
+            fi
+
             debuild --source-option='-I' -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
             cd - || exit
             dput "${LAUNCHPAD_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
