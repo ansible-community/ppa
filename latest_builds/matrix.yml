@@ -155,8 +155,9 @@ ansible-ansible-5:
         - focal
         - impish
         - jammy
-testing-ansible-6:
+testing-ansible-ansible-6:
   github_branch: ansible-6
+  launchpad_ppa: testing-ansible
   packages:
     - name: ansible-core
       version_specifier: "~=2.13.0a"
