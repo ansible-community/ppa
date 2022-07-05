@@ -167,4 +167,16 @@ testing-ansible-ansible-6:
       version_specifier: "~=6.0a"
       dists:
         - jammy
+ansible-ansible-6:
+  github_branch: ansible-6
+  launchpad_ppa: ansible
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.13.0a"
+      dists:
+        - jammy
+    - name: ansible
+      version_specifier: "~=6.0a"
+      dists:
+        - jammy
 
