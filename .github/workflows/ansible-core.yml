@@ -26,7 +26,7 @@ on:
 jobs:
   build_ansible_core:
     name: Build ansible-core
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       DEB_NAME: ansible-core
       DEB_ARCH: ${{ github.event.inputs.DEB_ARCH }}
