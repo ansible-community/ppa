@@ -32,4 +32,3 @@ Description: Ansible IT Automation
  are transferred to managed machines automatically.
  This package installs the ansible-test command for testing modules and
  plugins developed for ansible.
-
