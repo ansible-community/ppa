@@ -79,7 +79,7 @@ jobs:
           fi
 
           sudo apt -y install software-properties-common
-          sudo add-apt-repository --yes --update ppa:"${LAUNCHPAD_PROJECT}"/"${LAUNCHPAD_PPA}"
+          #sudo add-apt-repository --yes --update ppa:"${LAUNCHPAD_PROJECT}"/"${LAUNCHPAD_PPA}"
 
           sudo apt -y install make python3 python3-packaging python3-setuptools python3-straight.plugin python3-yaml python3-docutils devscripts cdbs debhelper dh-python
 
