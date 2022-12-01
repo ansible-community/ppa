@@ -20,7 +20,7 @@ on:
 jobs:
   build_ansible:
     name: Build ansible
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DEB_NAME: ansible
       DEB_ARCH: ${{ github.event.inputs.DEB_ARCH }}

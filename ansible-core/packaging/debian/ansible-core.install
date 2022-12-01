@@ -1,4 +1,5 @@
 examples/hosts etc/ansible
+docs/man/man1/*.1 usr/share/man/man1
 debian/tmp/usr/bin/ansible-galaxy usr/bin
 debian/tmp/usr/bin/ansible-vault usr/bin
 debian/tmp/usr/bin/ansible-doc usr/bin
