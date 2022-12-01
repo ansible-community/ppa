@@ -25,13 +25,11 @@ testing-ansible-4:
       dists:
         - bionic
         - focal
-        - impish
     - name: ansible
       version_specifier: "~=4.0a"
       dists:
         - bionic
         - focal
-        - impish
 testing-ansible-5:
   github_branch: ansible-5
   packages:
@@ -43,14 +41,38 @@ testing-ansible-5:
       version_specifier: "~=2.12.0a"
       dists:
         - focal
-        - impish
         - jammy
     - name: ansible
       version_specifier: "~=5.0a"
       dists:
         - focal
-        - impish
         - jammy
+testing-ansible-6:
+  github_branch: testing-ansible-6
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.13.1a"
+      dists:
+        - jammy
+        - kinetic
+    - name: ansible
+      version_specifier: "~=6.1a"
+      dists:
+        - jammy
+        - kinetic
+testing-ansible-7:
+  github_branch: testing-ansible-7
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.14.0a"
+      dists:
+        - jammy
+        - kinetic
+    - name: ansible
+      version_specifier: "~=7.0a"
+      dists:
+        - jammy
+        - kinetic
 testing-ansible-ansible-4:
   github_branch: ansible-4
   launchpad_ppa: testing-ansible
@@ -79,14 +101,24 @@ testing-ansible-ansible-5:
       version_specifier: "~=2.12.0a"
       dists:
         - focal
-        - impish
-        - jammy
     - name: ansible
       version_specifier: "~=5.0a"
       dists:
         - focal
-        - impish
+testing-ansible-ansible-7:
+  github_branch: testing-ansible-7
+  launchpad_ppa: testing-ansible
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.14.0a"
+      dists:
         - jammy
+        - kinetic
+    - name: ansible
+      version_specifier: "~=7.0a"
+      dists:
+        - jammy
+        - kinetic
 ansible-3:
   packages:
     - name: ansible-base
@@ -111,13 +143,11 @@ ansible-4:
       dists:
         - bionic
         - focal
-        - impish
     - name: ansible
       version_specifier: "~=4.0"
       dists:
         - bionic
         - focal
-        - impish
 ansible-5:
   github_branch: ansible-5
   packages:
@@ -129,12 +159,25 @@ ansible-5:
       version_specifier: "~=2.12.0"
       dists:
         - focal
-        - impish
+        - jammy
     - name: ansible
       version_specifier: "~=5.0"
       dists:
         - focal
-        - impish
+        - jammy
+ansible-6:
+  github_branch: ansible-6
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.13.1"
+      dists:
+        - jammy
+        - kinetic
+    - name: ansible
+      version_specifier: "~=6.1"
+      dists:
+        - jammy
+        - kinetic
 ansible-ansible-5:
   github_branch: ansible-5
   launchpad_ppa: ansible
@@ -147,36 +190,21 @@ ansible-ansible-5:
       version_specifier: "~=2.12.0"
       dists:
         - focal
-        - impish
-        - jammy
     - name: ansible
       version_specifier: "~=5.0"
       dists:
         - focal
-        - impish
-        - jammy
-testing-ansible-ansible-6:
-  github_branch: ansible-6
-  launchpad_ppa: testing-ansible
-  packages:
-    - name: ansible-core
-      version_specifier: "~=2.13.0a"
-      dists:
-        - jammy
-    - name: ansible
-      version_specifier: "~=6.0a"
-      dists:
-        - jammy
 ansible-ansible-6:
   github_branch: ansible-6
   launchpad_ppa: ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.13.0a"
+      version_specifier: "~=2.13.1"
       dists:
         - jammy
+        - kinetic
     - name: ansible
-      version_specifier: "~=6.0a"
+      version_specifier: "~=6.1"
       dists:
         - jammy
-
+        - kinetic
