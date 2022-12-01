@@ -20,7 +20,7 @@ on:
 jobs:
   build_ansible:
     name: Build ansible
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DEB_NAME: ansible
       DEB_ARCH: ${{ github.event.inputs.DEB_ARCH }}
@@ -85,10 +85,11 @@ jobs:
 
             mkdir -p deb-build/"${DIST}"
             tar -C deb-build/"${DIST}" -xzf dist/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
-            envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/templates/changelog > deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/changelog
 
-            # overwrite debian files using this repo's files
-            cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/debian/* deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/
+            # restore debian files using this repo's files
+            mkdir -p deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian
+            cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/debian/* deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/
+            envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/templates/changelog > deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/changelog
 
             chmod +x deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/rules
             cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
