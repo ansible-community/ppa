@@ -166,18 +166,19 @@ Manual runs of the `latest_builds.yml` workflow can be triggered via the GitHub 
 }
 
 # Then (for example) to generate new 5.3.0-2ppa~focal & 5.3.0-2ppa~impish builds for the ansible-5 PPA, you could make the following POST request. Note the 7276925 workflow ID used from the previous request to denote the ansible (.github/workflows/ansible.yml) workflow.
-
-% curl --location --request POST 'https://api.github.com/repos/ansible-community/ppa/actions/workflows/7276925/dispatches' \
+```
+```bash
+curl --location --request POST 'https://api.github.com/repos/ansible-community/ppa/actions/workflows/7276925/dispatches' \
 --header 'Authorization: token ghp_ACTUAL_GITHUB_PAT_TOKEN_GOES_HERE' \
 --header 'Content-Type: application/json' \
 --data-raw '    {
-        "ref": "ansible-5",
+        "ref": "ansible-7",
         "inputs": {
-            "DEB_DIST": "focal impish",
-            "DEB_VERSION": "5.3.0",
-            "DEB_RELEASE": "2ppa",
+            "DEB_DIST": "jammy kinetic",
+            "DEB_VERSION": "7.0.0",
+            "DEB_RELEASE": "1ppa",
             "LAUNCHPAD_PROJECT": "~ansible",
-            "LAUNCHPAD_PPA": "ansible-5"
+            "LAUNCHPAD_PPA": "ansible-7"
         }
     }'
 ```
