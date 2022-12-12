@@ -1,35 +1,4 @@
 ---
-testing-ansible-3:
-  github_branch: ansible-3
-  packages:
-    - name: ansible-base
-      version_specifier: "~=2.10.0a"
-      dists:
-        - bionic
-        - focal
-    - name: ansible
-      version_specifier: "~=3.0a"
-      dists:
-        - bionic
-        - focal
-testing-ansible-4:
-  github_branch: ansible-4
-  packages:
-    - name: resolvelib
-      version_specifier: "==0.5.4"
-      dists:
-        - bionic
-        - focal
-    - name: ansible-core
-      version_specifier: "~=2.11.0a"
-      dists:
-        - bionic
-        - focal
-    - name: ansible
-      version_specifier: "~=4.0a"
-      dists:
-        - bionic
-        - focal
 testing-ansible-5:
   github_branch: ansible-5
   packages:
@@ -73,22 +42,6 @@ testing-ansible-7:
       dists:
         - jammy
         - kinetic
-testing-ansible-ansible-4:
-  github_branch: ansible-4
-  launchpad_ppa: testing-ansible
-  packages:
-    - name: resolvelib
-      version_specifier: "==0.5.4"
-      dists:
-        - bionic
-    - name: ansible-core
-      version_specifier: "~=2.11.0a"
-      dists:
-        - bionic
-    - name: ansible
-      version_specifier: "~=4.0a"
-      dists:
-        - bionic
 testing-ansible-ansible-5:
   github_branch: ansible-5
   launchpad_ppa: testing-ansible
@@ -119,37 +72,7 @@ testing-ansible-ansible-7:
       dists:
         - jammy
         - kinetic
-ansible-3:
-  packages:
-    - name: ansible-base
-      version_specifier: "~=2.10.0"
-      dists:
-        - bionic
-        - focal
-    - name: ansible
-      version_specifier: "~=3.0"
-      dists:
-        - bionic
-        - focal
-ansible-4:
-  packages:
-    - name: resolvelib
-      version_specifier: "==0.5.4"
-      dists:
-        - bionic
-        - focal
-    - name: ansible-core
-      version_specifier: "~=2.11.0"
-      dists:
-        - bionic
-        - focal
-    - name: ansible
-      version_specifier: "~=4.0"
-      dists:
-        - bionic
-        - focal
 ansible-5:
-  github_branch: ansible-5
   packages:
     - name: resolvelib
       version_specifier: "==0.5.4"
@@ -166,7 +89,6 @@ ansible-5:
         - focal
         - jammy
 ansible-6:
-  github_branch: ansible-6
   packages:
     - name: ansible-core
       version_specifier: "~=2.13.1"
@@ -175,6 +97,18 @@ ansible-6:
         - kinetic
     - name: ansible
       version_specifier: "~=6.1"
+      dists:
+        - jammy
+        - kinetic
+ansible-7:
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.14.0"
+      dists:
+        - jammy
+        - kinetic
+    - name: ansible
+      version_specifier: "~=7.0"
       dists:
         - jammy
         - kinetic
