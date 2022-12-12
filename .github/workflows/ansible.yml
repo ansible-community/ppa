@@ -68,7 +68,7 @@ jobs:
             export DEB_CHANGELOG_VERSION="${DEB_VERSION}"
           fi
 
-          sudo apt -y install python3-setuptools devscripts debhelper dh-python python3-all
+          sudo apt-get -y install python3-setuptools devscripts debhelper dh-python python3-all
 
           mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
           rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*

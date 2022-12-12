@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-sudo apt -y remove ansible || true
-sudo apt -y remove ansible-base || true
-sudo apt -y remove ansible-core || true
-sudo apt -y autoremove
+sudo apt-get -y remove ansible || true
+sudo apt-get -y remove ansible-base || true
+sudo apt-get -y remove ansible-core || true
+sudo apt-get -y autoremove
 
-sudo apt update
+sudo apt-get update
 
-sudo apt -y install gpg gpg-agent wget
+sudo apt-get -y install gpg gpg-agent wget
 
 cat > "${HOME}"/.dput.cf << EOF
 [${LAUNCHPAD_PPA}]
