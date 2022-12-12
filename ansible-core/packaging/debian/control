@@ -11,7 +11,7 @@ Package: ansible-core
 Architecture: all
 Replaces: ansible (<< 2.10.0), ansible-base
 Breaks: ansible (<< 2.10.0), ansible-base
-Depends: python3-cryptography, python3-jinja2, python3-packaging, python3-resolvelib, python3-yaml, ${misc:Depends}, ${python3:Depends}
+Depends: python3-cryptography, python3-jinja2 (>= 3.0.0), python3-packaging, python3-resolvelib (>= 0.5.3), python3-resolvelib (<< 0.9.0), python3-yaml (>= 5.1), ${misc:Depends}, ${python3:Depends}
 Recommends: python3-paramiko, sshpass
 Suggests: ansible
 Description: Ansible IT Automation
@@ -32,4 +32,3 @@ Description: Ansible IT Automation
  are transferred to managed machines automatically.
  This package installs the ansible-test command for testing modules and
  plugins developed for ansible.
-
