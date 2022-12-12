@@ -73,7 +73,6 @@ testing-ansible-ansible-7:
         - jammy
         - kinetic
 ansible-5:
-  github_branch: ansible-5
   packages:
     - name: resolvelib
       version_specifier: "==0.5.4"
@@ -90,7 +89,6 @@ ansible-5:
         - focal
         - jammy
 ansible-6:
-  github_branch: ansible-6
   packages:
     - name: ansible-core
       version_specifier: "~=2.13.1"
