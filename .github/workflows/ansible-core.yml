@@ -69,7 +69,7 @@ jobs:
             export DEB_CHANGELOG_VERSION="${DEB_VERSION}"
           fi
 
-          sudo apt -y install make python3 python3-packaging python3-setuptools python3-straight.plugin python3-jinja2 python3-yaml python3-resolvelib python3-docutils devscripts cdbs debhelper dh-python
+          sudo apt-get -y install make python3 python3-packaging python3-setuptools python3-straight.plugin python3-jinja2 python3-yaml python3-resolvelib python3-docutils devscripts cdbs debhelper dh-python
 
           mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
           rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*
