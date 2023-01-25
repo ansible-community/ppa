@@ -31,7 +31,7 @@ jobs:
       LAUNCHPAD_PPA: ${{ github.event.inputs.LAUNCHPAD_PPA }}
     steps:
       - name: checkout branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
 
