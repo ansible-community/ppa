@@ -128,17 +128,17 @@ ansible-ansible-5:
       version_specifier: "~=5.0"
       dists:
         - focal
-ansible-ansible-6:
-  github_branch: ansible-6
+ansible-ansible-7:
+  github_branch: ansible-7
   launchpad_ppa: ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.13.1"
+      version_specifier: "~=2.14.0"
       dists:
         - jammy
         - kinetic
     - name: ansible
-      version_specifier: "~=6.1"
+      version_specifier: "~=7.0"
       dists:
         - jammy
         - kinetic
