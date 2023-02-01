@@ -1,3 +1,4 @@
 launchpadlib
 packaging
+pyyaml
 requests
