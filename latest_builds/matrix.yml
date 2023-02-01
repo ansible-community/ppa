@@ -17,7 +17,7 @@ testing-ansible-5:
         - focal
         - jammy
 testing-ansible-6:
-  github_branch: testing-ansible-6
+  github_branch: ansible-6
   packages:
     - name: ansible-core
       version_specifier: "~=2.13.1a"
@@ -30,7 +30,7 @@ testing-ansible-6:
         - jammy
         - kinetic
 testing-ansible-7:
-  github_branch: testing-ansible-7
+  github_branch: ansible-7
   packages:
     - name: ansible-core
       version_specifier: "~=2.14.0a"
@@ -59,7 +59,7 @@ testing-ansible-ansible-5:
       dists:
         - focal
 testing-ansible-ansible-7:
-  github_branch: testing-ansible-7
+  github_branch: ansible-7
   launchpad_ppa: testing-ansible
   packages:
     - name: ansible-core
