@@ -73,12 +73,13 @@ launchpad = Launchpad.login_anonymously("read-only", "production", cache_dir, ve
 launchpad_project = launchpad.projects[LAUNCHPAD_PROJECT]
 
 pypi_releases = {}
+builds = []
 
-for build, config in matrix.items():
-    print(f"checking '{build}' package(s)")
-    github_branch_name = config.get("github_branch", build)
+for name, config in matrix.items():
+    print(f"checking '{name}' package(s)")
+    github_branch_name = config.get("github_branch", name)
     print(f"  github_branch = {github_branch_name}")
-    launchpad_ppa_name = config.get("launchpad_ppa", build)
+    launchpad_ppa_name = config.get("launchpad_ppa", name)
     print(f"  launchpad_ppa = {launchpad_ppa_name}")
     launchpad_ppa = list(filter(lambda x: x.name == launchpad_ppa_name, launchpad_project.ppas))[0]
 
@@ -123,34 +124,45 @@ for build, config in matrix.items():
             print(f"    '{package['name']}' on {package['dists']} is already at '{latest_pypi_version}'")
             continue
 
-        print(f"    building '{package['name']}' '{latest_pypi_version}' for {build_dists}")
+        print(f"    adding '{package['name']}' '{latest_pypi_version}' for {build_dists}")
+        builds.append([name, build_dists, github_branch_name, latest_pypi_version, launchpad_ppa_name])
 
-        workflow = get_workflow(workflows, package["name"])
 
-        print(
-            f"    running '{workflow['name']}' workflow against '{github_branch_name}' ref for '{launchpad_ppa_name}' ppa"
-        )
+for build in builds:
+    name, build_dists, github_branch_name, latest_pypi_version, launchpad_ppa_name = build
+    print(f"building '{name}' package(s)")
+    print(f"  github_branch = {github_branch_name}")
+    print(f"  launchpad_ppa = {launchpad_ppa_name}")
+    print(f"  building '{package['name']}' versions")
 
-        run_in_progress = True
-        data = {
-            "ref": github_branch_name,
-            "inputs": {
-                "DEB_DIST": " ".join(build_dists),
-                "DEB_VERSION": str(latest_pypi_version),
-                "LAUNCHPAD_PROJECT": LAUNCHPAD_PROJECT,
-                "LAUNCHPAD_PPA": launchpad_ppa_name,
-            },
-        }
-        p = s.post(f"{base_workflows_url}/{workflow['id']}/dispatches", json=data)
+    print(f"    building '{package['name']}' '{latest_pypi_version}' for {build_dists}")
 
-        if not p.ok:
-            raise Exception("post failed!")
+    workflow = get_workflow(workflows, package["name"])
 
-        while run_in_progress:
-            sleep(15)
-            r = s.get(base_runs_url, params={"per_page": 1})
-            if not r.ok:
-                print("      workflow query failed")
-                continue
-            workflow_runs = r.json()["workflow_runs"]
-            run_in_progress = any([workflow_run["status"] != "completed" for workflow_run in workflow_runs])
+    print(
+        f"    running '{workflow['name']}' workflow against '{github_branch_name}' ref for '{launchpad_ppa_name}' ppa"
+    )
+
+    run_in_progress = True
+    data = {
+        "ref": github_branch_name,
+        "inputs": {
+            "DEB_DIST": " ".join(build_dists),
+            "DEB_VERSION": str(latest_pypi_version),
+            "LAUNCHPAD_PROJECT": LAUNCHPAD_PROJECT,
+            "LAUNCHPAD_PPA": launchpad_ppa_name,
+        },
+    }
+    p = s.post(f"{base_workflows_url}/{workflow['id']}/dispatches", json=data)
+
+    if not p.ok:
+        raise Exception("post failed!")
+
+    while run_in_progress:
+        sleep(15)
+        r = s.get(base_runs_url, params={"per_page": 1})
+        if not r.ok:
+            print("      workflow query failed")
+            continue
+        workflow_runs = r.json()["workflow_runs"]
+        run_in_progress = any([workflow_run["status"] != "completed" for workflow_run in workflow_runs])
