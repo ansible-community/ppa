@@ -42,6 +42,19 @@ testing-ansible-7:
       dists:
         - jammy
         - kinetic
+testing-ansible-8:
+  github_branch: ansible-8
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.15.0a"
+      dists:
+        - jammy
+        - kinetic
+    - name: ansible
+      version_specifier: "~=8.0a"
+      dists:
+        - jammy
+        - kinetic
 testing-ansible-ansible-5:
   github_branch: ansible-5
   launchpad_ppa: testing-ansible
