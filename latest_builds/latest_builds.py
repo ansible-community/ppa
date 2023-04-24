@@ -125,7 +125,7 @@ for name, config in matrix.items():
             continue
 
         print(f"    adding '{package['name']}' '{latest_pypi_version}' for {build_dists}")
-        builds.append([name, build_dists, github_branch_name, latest_pypi_version, launchpad_ppa_name])
+        builds.append([package["name"], build_dists, github_branch_name, latest_pypi_version, launchpad_ppa_name])
 
 
 for build in builds:
@@ -133,11 +133,11 @@ for build in builds:
     print(f"building '{name}' package(s)")
     print(f"  github_branch = {github_branch_name}")
     print(f"  launchpad_ppa = {launchpad_ppa_name}")
-    print(f"  building '{package['name']}' versions")
+    print(f"  building '{name}' versions")
 
-    print(f"    building '{package['name']}' '{latest_pypi_version}' for {build_dists}")
+    print(f"    building '{name}' '{latest_pypi_version}' for {build_dists}")
 
-    workflow = get_workflow(workflows, package["name"])
+    workflow = get_workflow(workflows, name)
 
     print(
         f"    running '{workflow['name']}' workflow against '{github_branch_name}' ref for '{launchpad_ppa_name}' ppa"
