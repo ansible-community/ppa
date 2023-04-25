@@ -37,13 +37,11 @@ testing-ansible-7:
       dists:
         - jammy
         - kinetic
-        - lunar
     - name: ansible
       version_specifier: "~=7.0a"
       dists:
         - jammy
         - kinetic
-        - lunar
 testing-ansible-ansible-5:
   github_branch: ansible-5
   launchpad_ppa: testing-ansible
@@ -69,13 +67,11 @@ testing-ansible-ansible-7:
       dists:
         - jammy
         - kinetic
-        - lunar
     - name: ansible
       version_specifier: "~=7.0a"
       dists:
         - jammy
         - kinetic
-        - lunar
 ansible-5:
   packages:
     - name: resolvelib
