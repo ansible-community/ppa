@@ -117,7 +117,11 @@ for name, config in matrix.items():
         build_dists = []
 
         for dist in package["dists"]:
-            if dist not in dist_versions.keys() or Version(dist_versions[dist]) < latest_pypi_version:
+            if dist not in dist_versions.keys():
+                print(f"    '{dist}' version not found")
+                build_dists.append(dist)
+            elif Version(dist_versions[dist]) < latest_pypi_version:
+                print(f"    '{dist}' version '{Version(dist_versions[dist])}' < '{latest_pypi_version}'")
                 build_dists.append(dist)
 
         if not build_dists:
