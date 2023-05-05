@@ -2,9 +2,10 @@ import os
 import requests
 import yaml
 
+from collections import defaultdict
 from launchpadlib.launchpad import Launchpad
-from packaging.version import Version
 from packaging.specifiers import SpecifierSet
+from packaging.version import Version
 from pathlib import Path
 from time import sleep
 
@@ -87,11 +88,14 @@ for name, config in matrix.items():
         print(f"  checking '{package['name']}' versions")
 
         published_binaries = launchpad_ppa.getPublishedBinaries(status="Published")
-        dist_versions = {
-            x.binary_package_version.split("~")[-1]: x.binary_package_version.split("-")[0].replace("~", "")
-            for x in published_binaries
-            if x.source_package_name == package["name"] and x.display_name.split()[-1] == ARCH
-        }
+        dist_versions = defaultdict(lambda: Version("0.0.0"))
+
+        for pb in published_binaries:
+            if pb.source_package_name == package["name"] and pb.display_name.split()[-1] == ARCH:
+                dist = pb.binary_package_version.split("~")[-1]
+                version = Version(pb.binary_package_version.split("-")[0].replace("~", ""))
+                if version > dist_versions[dist]:
+                    dist_versions[dist] = version
 
         if package["name"] not in pypi_releases:
             r = requests.get(f"https://pypi.org/pypi/{package['name']}/json")
@@ -120,8 +124,8 @@ for name, config in matrix.items():
             if dist not in dist_versions.keys():
                 print(f"    '{dist}' version not found")
                 build_dists.append(dist)
-            elif Version(dist_versions[dist]) < latest_pypi_version:
-                print(f"    '{dist}' version '{Version(dist_versions[dist])}' < '{latest_pypi_version}'")
+            elif dist_versions[dist] < latest_pypi_version:
+                print(f"    '{dist}' version '{dist_versions[dist]}' < '{latest_pypi_version}'")
                 build_dists.append(dist)
 
         if not build_dists:
