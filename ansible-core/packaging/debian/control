@@ -1,34 +1,48 @@
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: Ansible Project, 2020
+
 Source: ansible-core
 Section: admin
 Priority: optional
-Standards-Version: 3.9.3
 Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>
 Uploaders: Ansible GitHub Actions <ansible-gha@redhat.com>
-Build-Depends: cdbs, debhelper (>= 5.0.0), python3-docutils, python3, dh-python | python-support, python3-setuptools, lsb-release, python3-straight.plugin, python3-packaging, python3-jinja2
-Homepage: https://github.com/ansible/ansible/
+Build-Depends:
+ debhelper-compat (= 13),
+ devscripts,
+ dh-python,
+ python3-setuptools,
+ python3
+Standards-Version: 4.4.1
+Homepage: https://ansible.com/
+Vcs-Browser: https://github.com/ansible/ansible
+Vcs-Git: https://github.com/ansible/ansible.git
 
 Package: ansible-core
 Architecture: all
-Replaces: ansible (<< 2.10.0), ansible-base
-Breaks: ansible (<< 2.10.0), ansible-base
-Depends: python3-cryptography, python3-jinja2 (>= 3.0.0), python3-packaging, python3-resolvelib (>= 0.5.3), python3-resolvelib (<< 0.9.0), python3-yaml (>= 5.1), ${misc:Depends}, ${python3:Depends}
-Recommends: python3-paramiko, sshpass
-Suggests: ansible
+Replaces:
+ ansible (<< 2.10.0),
+ ansible-base
+Breaks:
+ ansible (<< 2.10.0),
+ ansible-base
+Depends:
+ ${misc:Depends},
+ ${python3:Depends},
+ python3-cryptography,
+ python3-jinja2 (>= 3.0.0),
+ python3-packaging,
+ python3-resolvelib (<< 1.1.0),
+ python3-resolvelib (>= 0.5.3),
+ python3-yaml (>= 5.1)
+Recommends:
+ python3-paramiko,
+ sshpass
+Suggests:
+ ansible
 Description: Ansible IT Automation
  Ansible is a radically simple model-driven configuration management,
  multi-node deployment, and remote task execution system. Ansible works
  over SSH and does not require any software or daemons to be installed
  on remote nodes. Extension modules can be written in any language and
  are transferred to managed machines automatically.
-
-Package: ansible-test
-Architecture: all
-Depends: ansible-core (= ${binary:Version}), python3-venv, ${misc:Depends}
-Description: Ansible IT Automation
- Ansible is a radically simple model-driven configuration management,
- multi-node deployment, and remote task execution system. Ansible works
- over SSH and does not require any software or daemons to be installed
- on remote nodes. Extension modules can be written in any language and
- are transferred to managed machines automatically.
- This package installs the ansible-test command for testing modules and
- plugins developed for ansible.
