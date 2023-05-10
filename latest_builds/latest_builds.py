@@ -2,9 +2,10 @@ import os
 import requests
 import yaml
 
+from collections import defaultdict
 from launchpadlib.launchpad import Launchpad
-from packaging.version import Version
 from packaging.specifiers import SpecifierSet
+from packaging.version import Version
 from pathlib import Path
 from time import sleep
 
@@ -73,12 +74,13 @@ launchpad = Launchpad.login_anonymously("read-only", "production", cache_dir, ve
 launchpad_project = launchpad.projects[LAUNCHPAD_PROJECT]
 
 pypi_releases = {}
+builds = []
 
-for build, config in matrix.items():
-    print(f"checking '{build}' package(s)")
-    github_branch_name = config.get("github_branch", build)
+for name, config in matrix.items():
+    print(f"checking '{name}' package(s)")
+    github_branch_name = config.get("github_branch", name)
     print(f"  github_branch = {github_branch_name}")
-    launchpad_ppa_name = config.get("launchpad_ppa", build)
+    launchpad_ppa_name = config.get("launchpad_ppa", name)
     print(f"  launchpad_ppa = {launchpad_ppa_name}")
     launchpad_ppa = list(filter(lambda x: x.name == launchpad_ppa_name, launchpad_project.ppas))[0]
 
@@ -86,11 +88,14 @@ for build, config in matrix.items():
         print(f"  checking '{package['name']}' versions")
 
         published_binaries = launchpad_ppa.getPublishedBinaries(status="Published")
-        dist_versions = {
-            x.binary_package_version.split("~")[-1]: x.binary_package_version.split("-")[0].replace("~", "")
-            for x in published_binaries
-            if x.source_package_name == package["name"] and x.display_name.split()[-1] == ARCH
-        }
+        dist_versions = defaultdict(lambda: Version("0.0.0"))
+
+        for pb in published_binaries:
+            if pb.source_package_name == package["name"] and pb.display_name.split()[-1] == ARCH:
+                dist = pb.binary_package_version.split("~")[-1]
+                version = Version(pb.binary_package_version.split("-")[0].replace("~", ""))
+                if version > dist_versions[dist]:
+                    dist_versions[dist] = version
 
         if package["name"] not in pypi_releases:
             r = requests.get(f"https://pypi.org/pypi/{package['name']}/json")
@@ -116,41 +121,56 @@ for build, config in matrix.items():
         build_dists = []
 
         for dist in package["dists"]:
-            if dist not in dist_versions.keys() or Version(dist_versions[dist]) < latest_pypi_version:
+            if dist not in dist_versions.keys():
+                print(f"    '{dist}' version not found")
+                build_dists.append(dist)
+            elif dist_versions[dist] < latest_pypi_version:
+                print(f"    '{dist}' version '{dist_versions[dist]}' < '{latest_pypi_version}'")
                 build_dists.append(dist)
 
         if not build_dists:
             print(f"    '{package['name']}' on {package['dists']} is already at '{latest_pypi_version}'")
             continue
 
-        print(f"    building '{package['name']}' '{latest_pypi_version}' for {build_dists}")
+        print(f"    adding '{package['name']}' '{latest_pypi_version}' for {build_dists}")
+        builds.append([package["name"], build_dists, github_branch_name, latest_pypi_version, launchpad_ppa_name])
 
-        workflow = get_workflow(workflows, package["name"])
 
-        print(
-            f"    running '{workflow['name']}' workflow against '{github_branch_name}' ref for '{launchpad_ppa_name}' ppa"
-        )
+for build in builds:
+    name, build_dists, github_branch_name, latest_pypi_version, launchpad_ppa_name = build
+    print(f"building '{name}' package(s)")
+    print(f"  github_branch = {github_branch_name}")
+    print(f"  launchpad_ppa = {launchpad_ppa_name}")
+    print(f"  building '{name}' versions")
 
-        run_in_progress = True
-        data = {
-            "ref": github_branch_name,
-            "inputs": {
-                "DEB_DIST": " ".join(build_dists),
-                "DEB_VERSION": str(latest_pypi_version),
-                "LAUNCHPAD_PROJECT": LAUNCHPAD_PROJECT,
-                "LAUNCHPAD_PPA": launchpad_ppa_name,
-            },
-        }
-        p = s.post(f"{base_workflows_url}/{workflow['id']}/dispatches", json=data)
+    print(f"    building '{name}' '{latest_pypi_version}' for {build_dists}")
 
-        if not p.ok:
-            raise Exception("post failed!")
+    workflow = get_workflow(workflows, name)
 
-        while run_in_progress:
-            sleep(15)
-            r = s.get(base_runs_url, params={"per_page": 1})
-            if not r.ok:
-                print("      workflow query failed")
-                continue
-            workflow_runs = r.json()["workflow_runs"]
-            run_in_progress = any([workflow_run["status"] != "completed" for workflow_run in workflow_runs])
+    print(
+        f"    running '{workflow['name']}' workflow against '{github_branch_name}' ref for '{launchpad_ppa_name}' ppa"
+    )
+
+    run_in_progress = True
+    data = {
+        "ref": github_branch_name,
+        "inputs": {
+            "DEB_DIST": " ".join(build_dists),
+            "DEB_VERSION": str(latest_pypi_version),
+            "LAUNCHPAD_PROJECT": LAUNCHPAD_PROJECT,
+            "LAUNCHPAD_PPA": launchpad_ppa_name,
+        },
+    }
+    p = s.post(f"{base_workflows_url}/{workflow['id']}/dispatches", json=data)
+
+    if not p.ok:
+        raise Exception("post failed!")
+
+    while run_in_progress:
+        sleep(15)
+        r = s.get(base_runs_url, params={"per_page": 1})
+        if not r.ok:
+            print("      workflow query failed")
+            continue
+        workflow_runs = r.json()["workflow_runs"]
+        run_in_progress = any([workflow_run["status"] != "completed" for workflow_run in workflow_runs])

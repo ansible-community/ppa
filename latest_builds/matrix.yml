@@ -1,21 +1,4 @@
 ---
-testing-ansible-5:
-  github_branch: ansible-5
-  packages:
-    - name: resolvelib
-      version_specifier: "==0.5.4"
-      dists:
-        - focal
-    - name: ansible-core
-      version_specifier: "~=2.12.0a"
-      dists:
-        - focal
-        - jammy
-    - name: ansible
-      version_specifier: "~=5.0a"
-      dists:
-        - focal
-        - jammy
 testing-ansible-6:
   github_branch: ansible-6
   packages:
@@ -42,52 +25,37 @@ testing-ansible-7:
       dists:
         - jammy
         - kinetic
-testing-ansible-ansible-5:
-  github_branch: ansible-5
-  launchpad_ppa: testing-ansible
-  packages:
-    - name: resolvelib
-      version_specifier: "==0.5.4"
-      dists:
-        - focal
-    - name: ansible-core
-      version_specifier: "~=2.12.0a"
-      dists:
-        - focal
-    - name: ansible
-      version_specifier: "~=5.0a"
-      dists:
-        - focal
-testing-ansible-ansible-7:
-  github_branch: ansible-7
-  launchpad_ppa: testing-ansible
+testing-ansible-8:
+  github_branch: ansible-8
   packages:
     - name: ansible-core
-      version_specifier: "~=2.14.0a"
+      version_specifier: "~=2.15.0a"
       dists:
         - jammy
         - kinetic
+        - lunar
     - name: ansible
-      version_specifier: "~=7.0a"
+      version_specifier: "~=8.0a"
       dists:
         - jammy
         - kinetic
-ansible-5:
+        - lunar
+testing-ansible-ansible-8:
+  github_branch: ansible-8
+  launchpad_ppa: testing-ansible
   packages:
-    - name: resolvelib
-      version_specifier: "==0.5.4"
-      dists:
-        - focal
     - name: ansible-core
-      version_specifier: "~=2.12.0"
+      version_specifier: "~=2.15.0a"
       dists:
-        - focal
         - jammy
+        - kinetic
+        - lunar
     - name: ansible
-      version_specifier: "~=5.0"
+      version_specifier: "~=8.0a"
       dists:
-        - focal
         - jammy
+        - kinetic
+        - lunar
 ansible-6:
   packages:
     - name: ansible-core
@@ -112,22 +80,6 @@ ansible-7:
       dists:
         - jammy
         - kinetic
-ansible-ansible-5:
-  github_branch: ansible-5
-  launchpad_ppa: ansible
-  packages:
-    - name: resolvelib
-      version_specifier: "==0.5.4"
-      dists:
-        - focal
-    - name: ansible-core
-      version_specifier: "~=2.12.0"
-      dists:
-        - focal
-    - name: ansible
-      version_specifier: "~=5.0"
-      dists:
-        - focal
 ansible-ansible-7:
   github_branch: ansible-7
   launchpad_ppa: ansible
