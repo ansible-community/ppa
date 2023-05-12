@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export DEB_SIGN_PROGRAM="gpg --pinentry-mode loopback --passphrase-file ${HOME}/signing.passphrase"
-export TARBALL_BASE_URL="https://pypi.python.org/packages/source"
+export TARBALL_BASE_URL="https://files.pythonhosted.org/packages/source"
 
 # handle different release types better in the changelog
 DEB_VERSION_EXTRA=$(echo "${DEB_VERSION}" | grep -Po '[a-z]+.*' || true)
