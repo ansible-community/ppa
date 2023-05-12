@@ -217,17 +217,19 @@ High level general steps
 1. Fork this repo
     1. Create / Update repo secrets appropriately
     1. Verify the workflows are available under the repo actions (there should be one for each package you intend to build). **Note:** At the time of this writing, there seems to be an issue with workflows needing an event other than `workflow_dispatch` to register. Here is a brief example of a workaround:
-        1. Check out the `ansible-5` branch
-        1. Modify each of the `.github/workflows/{ansible-core,ansible,resolvlib}.yml` files so that the `on` value also includes `push`
+        1. Check out a new branch based on the latest `ansible-X` branch
+            ```bash
+            git checkout -b workflows ansible-X
+            ```
+        1. Modify each of the `.github/workflows/ansible{,-core}.yml` files so that the `on` value also includes `push`
             ```
             on:
               push:
                 branches:
-                  - 'ansible-5'
-              workflow_dispatch:
+                  - workflows
             ```
-        1. Commit and push that to your fork (at this point you should now see the workflows registered under your repo actions)
-        1. Reset to the previous commit and force push (you only needed that commit to get the workflows to register, after they are registerd, you no longer need that commit)
+        1. Commit and push that to your fork. At this point you should now see the workflows registered under your repo actions.
+        1. You may now delete that branch entirely.
 1. Wait for scheduled jobs / Trigger Jobs Manually
 
 ### New versions
