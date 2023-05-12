@@ -2,7 +2,7 @@
 
 ## Repo Overview
 
-This repo uses GitHub Actions & Workflows to generate / upload Debian & Ubuntu builds to the https://launchpad.net/~ansible PPAs. See https://github.com/ansible-community/ppa/issues/1 for the latest PPA / Ansible / Ubuntu version matrix.
+This repo uses GitHub Actions & Workflows to generate and upload Debian & Ubuntu builds to the https://launchpad.net/~ansible PPAs. See https://github.com/ansible-community/ppa/issues/1 for the latest PPA x Ansible x Ubuntu version matrix.
 
 ## Repo Structure
 
@@ -18,6 +18,9 @@ Along with the `main` branch, there is currently a branch for each major Ansible
   ansible-3
   ansible-4
   ansible-5
+  ansible-6
+  ansible-7
+  ansible-8
 * main
 ```
 
@@ -35,46 +38,54 @@ Along with the `main` branch, there is currently a branch for each major Ansible
 │   ├── latest_builds.py
 │   ├── matrix.yml
 │   └── requirements.txt
+└── test
+    ├── README.md
+    ├── main.sh
+    ├── script.lib
+    ├── test_vault.yml
+    └── vault_pass
 ```
 
 ```
-(ansible-5) % tree -L 4 -a .
+(ansible-8) % tree -L 4 -a .
 .
 ├── .github
-│   ├── actions
-│   │   ├── action.yml
-│   │   └── setup.sh
+│   ├── scripts
+│   │   ├── build.sh
+│   │   ├── install_build_depends.sh
+│   │   ├── remove_existing_ansible.sh
+│   │   ├── setup_dput.sh
+│   │   └── setup_gpg.sh
 │   └── workflows
 │       ├── ansible-core.yml
 │       ├── ansible.yml
-│       └── resolvelib.yml
+│       └── build.yml
 ├── LICENSE
 ├── README.md
 ├── ansible
-│   ├── debian
-│   │   └── control
-│   └── templates
-│       └── changelog
+│   └── packaging
+│       ├── debian
+│       │   ├── control
+│       │   ├── copyright
+│       │   ├── copyright.license
+│       │   ├── rules
+│       │   ├── rules.license
+│       │   └── source
+│       └── templates
+│           └── changelog
 ├── ansible-core
-│   └── debian
-│       ├── changelog
-│       └── control
-├── resolvelib
-│   ├── debian
-│   │   ├── compat
-│   │   ├── control
-│   │   ├── copyright
-│   │   ├── docs
-│   │   ├── patches
-│   │   │   └── series
-│   │   ├── rules
-│   │   ├── source
-│   │   │   ├── format
-│   │   │   └── local-options
-│   │   └── watch
-│   └── templates
-│       ├── changelog
-│       └── hard_code_version
+│   └── packaging
+│       ├── debian
+│       │   ├── ansible-core.dirs
+│       │   ├── ansible-core.install
+│       │   ├── control
+│       │   ├── copyright
+│       │   ├── copyright.license
+│       │   ├── rules
+│       │   ├── rules.license
+│       │   └── source
+│       └── templates
+│           └── changelog
 ```
 
 ## GitHub Actions / Workflows
@@ -206,123 +217,112 @@ High level general steps
 1. Fork this repo
     1. Create / Update repo secrets appropriately
     1. Verify the workflows are available under the repo actions (there should be one for each package you intend to build). **Note:** At the time of this writing, there seems to be an issue with workflows needing an event other than `workflow_dispatch` to register. Here is a brief example of a workaround:
-        1. Check out the `ansible-5` branch
-        1. Modify each of the `.github/workflows/{ansible-core,ansible,resolvlib}.yml` files so that the `on` value also includes `push`
+        1. Check out a new branch based on the latest `ansible-X` branch
+            ```bash
+            git checkout -b workflows ansible-X
+            ```
+        1. Modify each of the `.github/workflows/ansible{,-core}.yml` files so that the `on` value also includes `push`
             ```
             on:
               push:
                 branches:
-                  - 'ansible-5'
-              workflow_dispatch:
+                  - workflows
             ```
-        1. Commit and push that to your fork (at this point you should now see the workflows registered under your repo actions)
-        1. Reset to the previous commit and force push (you only needed that commit to get the workflows to register, after they are registerd, you no longer need that commit)
+        1. Commit and push that to your fork. At this point you should now see the workflows registered under your repo actions.
+        1. You may now delete that branch entirely.
 1. Wait for scheduled jobs / Trigger Jobs Manually
 
 ### New versions
 
-Example of adding a new build: Ansible 6
+Example of adding a new build: Ansible 8
 
-1. Create a new `ansible-6` branch in the repo
-1. Create a new `testing-ansible-6` PPA
+1. Create a new `ansible-8` branch based on the `ansible-7` branch
+    ```bash
+    git checkout -b ansible-8 ansible-7
+    ```
+1. Create a new `testing-ansible-8` PPA
 1. Based on the `ansible-core` / `ansible` requirements determine which versions of Ubuntu make sense and what other requirements you might need to provide
     1. Check the release cycle for currently supported Ubuntu releases https://ubuntu.com/about/release-cycle
     1. Check the provided `python3` versions https://packages.ubuntu.com/search?keywords=python3&searchon=names&exact=1&suite=all&section=all
     1. Check the provided `resolvelib` versions https://packages.ubuntu.com/search?keywords=python3-resolvelib&searchon=names&exact=1&suite=all&section=all
 1. Use the version information to create an entry in the `latest_builds/matrix.yml`
     ```
-    testing-ansible-6:  # name used for PPA unless launchpad_ppa is specified
-      github_branch: ansible-6
+    testing-ansible-8:  # name used for PPA unless launchpad_ppa is specified
+      github_branch: ansible-8
       packages:
-        - name: resolvelib
-          version_specifier: "==0.5.4"
-          dists:
-            - focal
         - name: ansible-core
-          version_specifier: "~=2.13.0a"  # includes alpha releases
+          version_specifier: "~=2.15.0a"  # includes pre-releases
           dists:
-            - focal
-            - impish
             - jammy
+            - kinetic
+            - lunar
         - name: ansible
-          version_specifier: "~=6.0a"  # includes alpha releases
+          version_specifier: "~=8.0a"  # includes pre-releases
           dists:
-            - focal
-            - impish
             - jammy
+            - kinetic
+            - lunar
     ```
     For more information on the `version_specifier` see https://packaging.pypa.io/en/latest/specifiers.html
 1. Update the build matrix in https://github.com/ansible-community/ppa/issues/1
 1. Wait for the next scheduled run or manually kick off another build.
 1. Once the builds are completed successfully, add (or bump the version of an existing entry) for the `testing-ansible` PPA
     ```
-    testing-ansible-ansible-6:
-      github_branch: ansible-6
+    testing-ansible-ansible-8:
+      github_branch: ansible-8
       launchpad_ppa: testing-ansible  # name used for the PPA
       packages:
-        - name: resolvelib
-          version_specifier: "==0.5.4"
-          dists:
-            - focal
         - name: ansible-core
-          version_specifier: "~=2.13.0a"
+          version_specifier: "~=2.15.0a"
           dists:
-            - focal
-            - impish
             - jammy
+            - kinetic
+            - lunar
         - name: ansible
-          version_specifier: "~=6.0a"
+          version_specifier: "~=8.0a"
           dists:
-            - focal
-            - impish
             - jammy
+            - kinetic
+            - lunar
     ```
 1. Once the testing (see [test/README.md](test/README.md) for an example) is completed, repeat the process for the non-testing PPAs
-    1. Create a new `ansible-6` PPA
+    1. Create a new `ansible-8` PPA
     1. Add / modify the appropriate entries to the `latest_builds/matrix.yml`
         ```
-        ansible-6:
-          github_branch: ansible-6
+        ansible-8:
+          github_branch: ansible-8
           packages:
-            - name: resolvelib
-              version_specifier: "==0.5.4"
-              dists:
-                - focal
             - name: ansible-core
-              version_specifier: "~=2.13.0"
+              version_specifier: "~=2.15.0"  # does not include pre-releases
               dists:
-                - focal
-                - impish
                 - jammy
+                - kinetic
+                - lunar
             - name: ansible
-              version_specifier: "~=6.0"
+              version_specifier: "~=8.0"  # does not include pre-releases
               dists:
-                - focal
-                - impish
                 - jammy
+                - kinetic
+                - lunar
         ```
 
         ```
-        ansible-ansible-6:
-          github_branch: ansible-6
+        ansible-ansible-8:
+          github_branch: ansible-8
           launchpad_ppa: ansible
           packages:
-            - name: resolvelib
-              version_specifier: "==0.5.4"
-              dists:
-                - focal
             - name: ansible-core
-              version_specifier: "~=2.13.0"
+              version_specifier: "~=2.15.0"
               dists:
-                - focal
-                - impish
                 - jammy
+                - kinetic
+                - lunar
             - name: ansible
-              version_specifier: "~=6.0"
+              version_specifier: "~=8.0"
               dists:
-                - focal
-                - impish
                 - jammy
+                - kinetic
+                - lunar
         ```
 
 ### Old versions
