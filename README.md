@@ -2,7 +2,7 @@
 
 ## Repo Overview
 
-This repo uses GitHub Actions & Workflows to generate / upload Debian & Ubuntu builds to the https://launchpad.net/~ansible PPAs. See https://github.com/ansible-community/ppa/issues/1 for the latest PPA / Ansible / Ubuntu version matrix.
+This repo uses GitHub Actions & Workflows to generate and upload Debian & Ubuntu builds to the https://launchpad.net/~ansible PPAs. See https://github.com/ansible-community/ppa/issues/1 for the latest PPA x Ansible x Ubuntu version matrix.
 
 ## Repo Structure
 
