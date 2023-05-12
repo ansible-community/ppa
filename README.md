@@ -234,108 +234,95 @@ High level general steps
 
 ### New versions
 
-Example of adding a new build: Ansible 6
+Example of adding a new build: Ansible 8
 
-1. Create a new `ansible-6` branch in the repo
-1. Create a new `testing-ansible-6` PPA
+1. Create a new `ansible-8` branch based on the `ansible-7` branch
+    ```bash
+    git checkout -b ansible-8 ansible-7
+    ```
+1. Create a new `testing-ansible-8` PPA
 1. Based on the `ansible-core` / `ansible` requirements determine which versions of Ubuntu make sense and what other requirements you might need to provide
     1. Check the release cycle for currently supported Ubuntu releases https://ubuntu.com/about/release-cycle
     1. Check the provided `python3` versions https://packages.ubuntu.com/search?keywords=python3&searchon=names&exact=1&suite=all&section=all
     1. Check the provided `resolvelib` versions https://packages.ubuntu.com/search?keywords=python3-resolvelib&searchon=names&exact=1&suite=all&section=all
 1. Use the version information to create an entry in the `latest_builds/matrix.yml`
     ```
-    testing-ansible-6:  # name used for PPA unless launchpad_ppa is specified
-      github_branch: ansible-6
+    testing-ansible-8:  # name used for PPA unless launchpad_ppa is specified
+      github_branch: ansible-8
       packages:
-        - name: resolvelib
-          version_specifier: "==0.5.4"
-          dists:
-            - focal
         - name: ansible-core
-          version_specifier: "~=2.13.0a"  # includes alpha releases
+          version_specifier: "~=2.15.0a"  # includes pre-releases
           dists:
-            - focal
-            - impish
             - jammy
+            - kinetic
+            - lunar
         - name: ansible
-          version_specifier: "~=6.0a"  # includes alpha releases
+          version_specifier: "~=8.0a"  # includes pre-releases
           dists:
-            - focal
-            - impish
             - jammy
+            - kinetic
+            - lunar
     ```
     For more information on the `version_specifier` see https://packaging.pypa.io/en/latest/specifiers.html
 1. Update the build matrix in https://github.com/ansible-community/ppa/issues/1
 1. Wait for the next scheduled run or manually kick off another build.
 1. Once the builds are completed successfully, add (or bump the version of an existing entry) for the `testing-ansible` PPA
     ```
-    testing-ansible-ansible-6:
-      github_branch: ansible-6
+    testing-ansible-ansible-8:
+      github_branch: ansible-8
       launchpad_ppa: testing-ansible  # name used for the PPA
       packages:
-        - name: resolvelib
-          version_specifier: "==0.5.4"
-          dists:
-            - focal
         - name: ansible-core
-          version_specifier: "~=2.13.0a"
+          version_specifier: "~=2.15.0a"
           dists:
-            - focal
-            - impish
             - jammy
+            - kinetic
+            - lunar
         - name: ansible
-          version_specifier: "~=6.0a"
+          version_specifier: "~=8.0a"
           dists:
-            - focal
-            - impish
             - jammy
+            - kinetic
+            - lunar
     ```
 1. Once the testing (see [test/README.md](test/README.md) for an example) is completed, repeat the process for the non-testing PPAs
-    1. Create a new `ansible-6` PPA
+    1. Create a new `ansible-8` PPA
     1. Add / modify the appropriate entries to the `latest_builds/matrix.yml`
         ```
-        ansible-6:
-          github_branch: ansible-6
+        ansible-8:
+          github_branch: ansible-8
           packages:
-            - name: resolvelib
-              version_specifier: "==0.5.4"
-              dists:
-                - focal
             - name: ansible-core
-              version_specifier: "~=2.13.0"
+              version_specifier: "~=2.15.0"  # does not include pre-releases
               dists:
-                - focal
-                - impish
                 - jammy
+                - kinetic
+                - lunar
             - name: ansible
-              version_specifier: "~=6.0"
+              version_specifier: "~=8.0"  # does not include pre-releases
               dists:
-                - focal
-                - impish
                 - jammy
+                - kinetic
+                - lunar
         ```
 
         ```
-        ansible-ansible-6:
-          github_branch: ansible-6
+        ansible-ansible-8:
+          github_branch: ansible-8
           launchpad_ppa: ansible
           packages:
-            - name: resolvelib
-              version_specifier: "==0.5.4"
-              dists:
-                - focal
             - name: ansible-core
-              version_specifier: "~=2.13.0"
+              version_specifier: "~=2.15.0"
               dists:
-                - focal
-                - impish
                 - jammy
+                - kinetic
+                - lunar
             - name: ansible
-              version_specifier: "~=6.0"
+              version_specifier: "~=8.0"
               dists:
-                - focal
-                - impish
                 - jammy
+                - kinetic
+                - lunar
         ```
 
 ### Old versions
