@@ -18,6 +18,9 @@ Along with the `main` branch, there is currently a branch for each major Ansible
   ansible-3
   ansible-4
   ansible-5
+  ansible-6
+  ansible-7
+  ansible-8
 * main
 ```
 
