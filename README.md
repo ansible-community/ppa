@@ -38,46 +38,54 @@ Along with the `main` branch, there is currently a branch for each major Ansible
 │   ├── latest_builds.py
 │   ├── matrix.yml
 │   └── requirements.txt
+└── test
+    ├── README.md
+    ├── main.sh
+    ├── script.lib
+    ├── test_vault.yml
+    └── vault_pass
 ```
 
 ```
-(ansible-5) % tree -L 4 -a .
+(ansible-8) % tree -L 4 -a .
 .
 ├── .github
-│   ├── actions
-│   │   ├── action.yml
-│   │   └── setup.sh
+│   ├── scripts
+│   │   ├── build.sh
+│   │   ├── install_build_depends.sh
+│   │   ├── remove_existing_ansible.sh
+│   │   ├── setup_dput.sh
+│   │   └── setup_gpg.sh
 │   └── workflows
 │       ├── ansible-core.yml
 │       ├── ansible.yml
-│       └── resolvelib.yml
+│       └── build.yml
 ├── LICENSE
 ├── README.md
 ├── ansible
-│   ├── debian
-│   │   └── control
-│   └── templates
-│       └── changelog
+│   └── packaging
+│       ├── debian
+│       │   ├── control
+│       │   ├── copyright
+│       │   ├── copyright.license
+│       │   ├── rules
+│       │   ├── rules.license
+│       │   └── source
+│       └── templates
+│           └── changelog
 ├── ansible-core
-│   └── debian
-│       ├── changelog
-│       └── control
-├── resolvelib
-│   ├── debian
-│   │   ├── compat
-│   │   ├── control
-│   │   ├── copyright
-│   │   ├── docs
-│   │   ├── patches
-│   │   │   └── series
-│   │   ├── rules
-│   │   ├── source
-│   │   │   ├── format
-│   │   │   └── local-options
-│   │   └── watch
-│   └── templates
-│       ├── changelog
-│       └── hard_code_version
+│   └── packaging
+│       ├── debian
+│       │   ├── ansible-core.dirs
+│       │   ├── ansible-core.install
+│       │   ├── control
+│       │   ├── copyright
+│       │   ├── copyright.license
+│       │   ├── rules
+│       │   ├── rules.license
+│       │   └── source
+│       └── templates
+│           └── changelog
 ```
 
 ## GitHub Actions / Workflows
