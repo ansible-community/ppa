@@ -80,6 +80,20 @@ ansible-7:
       dists:
         - jammy
         - kinetic
+ansible-8:
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.15.0"
+      dists:
+        - jammy
+        - kinetic
+        - lunar
+    - name: ansible
+      version_specifier: "~=8.0"
+      dists:
+        - jammy
+        - kinetic
+        - lunar
 ansible-ansible-7:
   github_branch: ansible-7
   launchpad_ppa: ansible
