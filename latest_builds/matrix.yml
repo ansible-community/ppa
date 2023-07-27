@@ -6,12 +6,10 @@ testing-ansible-6:
       version_specifier: "~=2.13.1a"
       dists:
         - jammy
-        - kinetic
     - name: ansible
       version_specifier: "~=6.1a"
       dists:
         - jammy
-        - kinetic
 testing-ansible-7:
   github_branch: ansible-7
   packages:
@@ -19,12 +17,10 @@ testing-ansible-7:
       version_specifier: "~=2.14.0a"
       dists:
         - jammy
-        - kinetic
     - name: ansible
       version_specifier: "~=7.0a"
       dists:
         - jammy
-        - kinetic
 testing-ansible-8:
   github_branch: ansible-8
   packages:
@@ -32,13 +28,11 @@ testing-ansible-8:
       version_specifier: "~=2.15.0a"
       dists:
         - jammy
-        - kinetic
         - lunar
     - name: ansible
       version_specifier: "~=8.0a"
       dists:
         - jammy
-        - kinetic
         - lunar
 testing-ansible-ansible-8:
   github_branch: ansible-8
@@ -48,13 +42,11 @@ testing-ansible-ansible-8:
       version_specifier: "~=2.15.0a"
       dists:
         - jammy
-        - kinetic
         - lunar
     - name: ansible
       version_specifier: "~=8.0a"
       dists:
         - jammy
-        - kinetic
         - lunar
 ansible-6:
   packages:
@@ -62,37 +54,31 @@ ansible-6:
       version_specifier: "~=2.13.1"
       dists:
         - jammy
-        - kinetic
     - name: ansible
       version_specifier: "~=6.1"
       dists:
         - jammy
-        - kinetic
 ansible-7:
   packages:
     - name: ansible-core
       version_specifier: "~=2.14.0"
       dists:
         - jammy
-        - kinetic
     - name: ansible
       version_specifier: "~=7.0"
       dists:
         - jammy
-        - kinetic
 ansible-8:
   packages:
     - name: ansible-core
       version_specifier: "~=2.15.0"
       dists:
         - jammy
-        - kinetic
         - lunar
     - name: ansible
       version_specifier: "~=8.0"
       dists:
         - jammy
-        - kinetic
         - lunar
 ansible-ansible-8:
   github_branch: ansible-8
@@ -102,11 +88,9 @@ ansible-ansible-8:
       version_specifier: "~=2.15.0"
       dists:
         - jammy
-        - kinetic
         - lunar
     - name: ansible
       version_specifier: "~=8.0"
       dists:
         - jammy
-        - kinetic
         - lunar
