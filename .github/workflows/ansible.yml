@@ -1,98 +1,39 @@
 ---
 name: ansible
+
 on:
   workflow_dispatch:
     inputs:
       DEB_ARCH:
-        required: true
         default: amd64
+        required: true
+        type: string
       DEB_DIST:
         required: true
+        type: string
       DEB_RELEASE:
-        required: true
         default: 1ppa
+        required: true
+        type: string
       DEB_VERSION:
         required: true
+        type: string
       LAUNCHPAD_PROJECT:
         required: true
+        type: string
       LAUNCHPAD_PPA:
         required: true
+        type: string
+
 jobs:
-  build_ansible:
-    name: Build ansible
-    runs-on: ubuntu-22.04
-    env:
-      DEB_NAME: ansible
+  call_build_workflow:
+    uses: ./.github/workflows/build.yml
+    with:
       DEB_ARCH: ${{ github.event.inputs.DEB_ARCH }}
       DEB_DIST: ${{ github.event.inputs.DEB_DIST }}
+      DEB_NAME: ${{ github.workflow }}
       DEB_RELEASE: ${{ github.event.inputs.DEB_RELEASE }}
       DEB_VERSION: ${{ github.event.inputs.DEB_VERSION }}
       LAUNCHPAD_PROJECT: ${{ github.event.inputs.LAUNCHPAD_PROJECT }}
       LAUNCHPAD_PPA: ${{ github.event.inputs.LAUNCHPAD_PPA }}
-    steps:
-      - name: checkout branch
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
-
-      - name: run the setup action
-        uses: ./.github/actions
-        with:
-          LAUNCHPAD_PROJECT: ${{ github.event.inputs.LAUNCHPAD_PROJECT }}
-          LAUNCHPAD_PPA: ${{ github.event.inputs.LAUNCHPAD_PPA }}
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
-          SIGNING_OWNERTRUST: ${{ secrets.SIGNING_OWNERTRUST }}
-
-      - name: build
-        env:
-          DEBSIGN_KEYID: ${{ secrets.DEBSIGN_KEYID }}
-          DEBSIGN_PROGRAM: gpg --pinentry-mode loopback --passphrase-file ${HOME}/signing.passphrase
-          TARBALL_BASE_URL: https://pypi.python.org/packages/source
-        run: |
-          echo "DEB_NAME=${DEB_NAME}"
-          echo "DEB_ARCH=${DEB_ARCH}"
-          echo "DEB_DIST=${DEB_DIST}"
-          echo "DEB_RELEASE=${DEB_RELEASE}"
-          echo "DEB_VERSION=${DEB_VERSION}"
-          echo "LAUNCHPAD_PROJECT=${LAUNCHPAD_PROJECT}"
-          echo "LAUNCHPAD_PPA=${LAUNCHPAD_PPA}"
-
-          # handle different release types better in the changelog
-          DEB_VERSION_EXTRA=$(echo "${DEB_VERSION}" | grep -Po '[a-z]+.*' || true)
-
-          if [[ -n "${DEB_VERSION_EXTRA}" ]]; then
-            DEB_VERSION_BASE=$(echo "${DEB_VERSION}" | grep -Po '^[\d+\.]+')
-            export DEB_CHANGELOG_VERSION="${DEB_VERSION_BASE}"~"${DEB_VERSION_EXTRA}"
-          else
-            export DEB_CHANGELOG_VERSION="${DEB_VERSION}"
-          fi
-
-          sudo apt-get -y install python3-setuptools devscripts debhelper dh-python python3-all
-
-          mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
-          rm -rf "${DEB_NAME}"-"${DEB_VERSION}"*
-          wget "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME}"/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
-          tar -xzf "${DEB_NAME}"-"${DEB_VERSION}".tar.gz
-          cd "${DEB_NAME}"-"${DEB_VERSION}" || exit
-          _ANSIBLE_SDIST_FROM_MAKEFILE=1 python3 setup.py sdist --dist-dir=dist
-
-          DATE=$(date -R)
-          export DATE
-
-          for DIST in ${DEB_DIST}; do
-            export DIST
-
-            mkdir -p deb-build/"${DIST}"
-            tar -C deb-build/"${DIST}" -xzf dist/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
-            envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/templates/changelog > deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/changelog
-
-            # overwrite debian files using this repo's files
-            cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/debian/* deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/
-
-            chmod +x deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}"/debian/rules
-            cd deb-build/"${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
-            debuild --source-option='-I' -S -k"${DEBSIGN_KEYID}" -p"$(echo "${DEBSIGN_PROGRAM}" | envsubst)"
-            cd - || exit
-            dput "${LAUNCHPAD_PPA}" deb-build/"${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
-          done
+    secrets: inherit
