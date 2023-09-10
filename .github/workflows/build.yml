@@ -1,0 +1,76 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      DEB_ARCH:
+        required: true
+        type: string
+      DEB_DIST:
+        required: true
+        type: string
+      DEB_NAME:
+        required: true
+        type: string
+      DEB_RELEASE:
+        required: true
+        type: string
+      DEB_VERSION:
+        required: true
+        type: string
+      LAUNCHPAD_PROJECT:
+        required: true
+        type: string
+      LAUNCHPAD_PPA:
+        required: true
+        type: string
+    secrets:
+      DEBSIGN_KEYID:
+        required: true
+      SIGNING_KEY:
+        required: true
+      SIGNING_PASSPHRASE:
+        required: true
+      SIGNING_OWNERTRUST:
+        required: true
+
+jobs:
+  build:
+    name: Build ${{ inputs.DEB_NAME }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Remove existing Ansible installations
+        run: ./.github/scripts/remove_existing_ansible.sh
+
+      - name: Install build depends
+        run: ./.github/scripts/install_build_depends.sh
+
+      - name: Setup dput
+        env:
+          LAUNCHPAD_PROJECT: ${{ inputs.LAUNCHPAD_PROJECT }}
+          LAUNCHPAD_PPA: ${{ inputs.LAUNCHPAD_PPA }}
+        run: ./.github/scripts/setup_dput.sh
+
+      - name: Setup gpg
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
+          SIGNING_OWNERTRUST: ${{ secrets.SIGNING_OWNERTRUST }}
+        run: ./.github/scripts/setup_gpg.sh
+
+      - name: Build ${{ inputs.DEB_NAME }}
+        env:
+          DEB_ARCH: ${{ inputs.DEB_ARCH }}
+          DEB_DIST: ${{ inputs.DEB_DIST }}
+          DEB_NAME: ${{ inputs.DEB_NAME }}
+          DEB_RELEASE: ${{ inputs.DEB_RELEASE }}
+          DEB_VERSION: ${{ inputs.DEB_VERSION }}
+          LAUNCHPAD_PROJECT: ${{ inputs.LAUNCHPAD_PROJECT }}
+          LAUNCHPAD_PPA: ${{ inputs.LAUNCHPAD_PPA }}
+          DEBSIGN_KEYID: ${{ secrets.DEBSIGN_KEYID }}
+        run: ./.github/scripts/build.sh
