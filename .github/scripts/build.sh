@@ -33,6 +33,22 @@ for DIST in ${DEB_DIST}; do
   cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/debian ./
   envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/templates/changelog > ./debian/changelog
 
+  # include the examples and man1 if ansible-core
+  if [[ "${DEB_NAME}" == "ansible-core" ]]; then
+    export DESCRIPTION='examples'
+    export ORIGIN='https://github.com/ansible/ansible-documentation'
+    wget https://github.com/ansible/ansible-documentation/archive/refs/tags/v"${DEB_VERSION}".tar.gz -O - | tar -xzvf - --strip=1 ansible-documentation-"${DEB_VERSION}"/examples/{ansible.cfg,hosts}
+    envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/templates/local-patch-header > ./debian/source/local-patch-header
+    EDITOR=/bin/true dpkg-source --commit . examples
+
+    export DESCRIPTION='man1'
+    export ORIGIN='https://github.com/ansible/ansible'
+    pip install --requirement requirements.txt docutils
+    packaging/cli-doc/build.py man --output-dir docs/man/man1
+    envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/templates/local-patch-header > ./debian/source/local-patch-header
+    EDITOR=/bin/true dpkg-source --commit . man1
+  fi
+
   debuild -S -k"${DEBSIGN_KEYID}" -p"${DEB_SIGN_PROGRAM}"
   cd - || exit
   dput "${LAUNCHPAD_PPA}" "${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes

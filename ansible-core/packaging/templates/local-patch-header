@@ -1,0 +1,9 @@
+Description: ${DESCRIPTION}
+Origin: ${ORIGIN}
+Version: ${DEB_VERSION}
+Last-Update: ${DATE}
+ .
+ ${DEB_NAME} (${DEB_CHANGELOG_VERSION}-${DEB_RELEASE}~${DIST}) ${DIST}; urgency=low
+ .
+   * ${DEB_NAME} ${DEB_CHANGELOG_VERSION} release
+Author: Ansible Community Builds <ansible-community-builds@redhat.com>
