@@ -1,27 +1,31 @@
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: Ansible Project, 2020
+
 Source: ansible
 Section: admin
 Priority: optional
 Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>
 Uploaders: Ansible GitHub Actions <ansible-gha@redhat.com>
-Build-Depends: debhelper-compat (= 11), dh-python, python3-setuptools, python3-all
+Build-Depends:
+ debhelper-compat (= 13),
+ devscripts,
+ dh-python,
+ python3-setuptools,
+ python3
 Standards-Version: 4.4.1
 Homepage: https://ansible.com/
-Vcs-Browser: https://github.com/ansible-community/
+Vcs-Browser: https://github.com/ansible-community/antsibull
 Vcs-Git: https://github.com/ansible-community/antsibull.git
-# Testsuite: autopkgtest-pkg-python
 
 Package: ansible
 Architecture: all
-Depends: ansible-core, ${misc:Depends}, ${python3:Depends}
-Recommends: python3-jmespath, python3-winrm
-# Suggests: python-ansible-doc
-Description: batteries-included package providing a curated set of Ansible collections in addition to ansible-core
-
-# Package: python-ansible-doc
-# Architecture: all
-# Section: doc
-# Depends: ${sphinxdoc:Depends}, ${misc:Depends}
-# Description: <insert up to 60 chars description> (common documentation)
-# <insert long description, indented with spaces>
-# .
-# This is the common documentation package.
+Depends:
+ ${misc:Depends},
+ ${python3:Depends},
+ ansible-core
+Recommends:
+ python3-jmespath,
+ python3-winrm
+Description: Ansible collections for ansible-core
+ Batteries-included package providing a curated set of Ansible collections
