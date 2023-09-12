@@ -3,12 +3,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # SPDX-FileCopyrightText: Ansible Project, 2020
 
-export PYBUILD_NAME = ansible-core
+export PYBUILD_NAME = ansible
 export PYBUILD_DISABLE = test
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
-
-override_dh_clean:
-	dh_clean
-	rm -rf test
