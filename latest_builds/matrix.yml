@@ -47,17 +47,17 @@ testing-ansible-9:
       dists:
         - jammy
         - lunar
-testing-ansible-ansible-8:
-  github_branch: ansible-8
+testing-ansible-ansible-9:
+  github_branch: ansible-9
   launchpad_ppa: testing-ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.15.0a"
+      version_specifier: "~=2.16.0a"
       dists:
         - jammy
         - lunar
     - name: ansible
-      version_specifier: "~=8.0a"
+      version_specifier: "~=9.0a"
       dists:
         - jammy
         - lunar
