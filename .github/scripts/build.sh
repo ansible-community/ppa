@@ -38,7 +38,7 @@ for DIST in ${DEB_DIST}; do
   if [[ "${DEB_NAME}" == "ansible-core" ]]; then
     export DESCRIPTION='examples'
     export ORIGIN='https://github.com/ansible/ansible-documentation'
-    wget https://github.com/ansible/ansible-documentation/archive/refs/tags/v"${DEB_VERSION}".tar.gz -O - | tar -xzvf - --strip=1 ansible-documentation-"${DEB_VERSION}"/examples/{ansible.cfg,hosts}
+    wget https://github.com/ansible/ansible-documentation/archive/refs/tags/v"${DEB_VERSION}".tar.gz -O - | tar -xzvf - --strip=1 ansible-documentation-"${DEB_VERSION}"/examples/{ansible.cfg,hosts} || exit
     envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/templates/local-patch-header > ./debian/source/local-patch-header
     EDITOR=/bin/true dpkg-source --commit . examples
 
