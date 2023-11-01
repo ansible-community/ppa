@@ -42,11 +42,13 @@ testing-ansible-9:
       dists:
         - jammy
         - lunar
+        - mantic
     - name: ansible
       version_specifier: "~=9.0a"
       dists:
         - jammy
         - lunar
+        - mantic
 testing-ansible-ansible-9:
   github_branch: ansible-9
   launchpad_ppa: testing-ansible
@@ -56,11 +58,13 @@ testing-ansible-ansible-9:
       dists:
         - jammy
         - lunar
+        - mantic
     - name: ansible
       version_specifier: "~=9.0a"
       dists:
         - jammy
         - lunar
+        - mantic
 ansible-6:
   packages:
     - name: ansible-core
