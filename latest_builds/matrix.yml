@@ -97,6 +97,20 @@ ansible-8:
       dists:
         - jammy
         - lunar
+ansible-9:
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.16.0"
+      dists:
+        - jammy
+        - lunar
+        - mantic
+    - name: ansible
+      version_specifier: "~=9.0"
+      dists:
+        - jammy
+        - lunar
+        - mantic
 ansible-ansible-8:
   github_branch: ansible-8
   launchpad_ppa: ansible
