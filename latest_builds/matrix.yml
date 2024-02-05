@@ -28,12 +28,10 @@ testing-ansible-8:
       version_specifier: "~=2.15.0a"
       dists:
         - jammy
-        - lunar
     - name: ansible
       version_specifier: "~=8.0a"
       dists:
         - jammy
-        - lunar
 testing-ansible-9:
   github_branch: ansible-9
   packages:
@@ -41,13 +39,11 @@ testing-ansible-9:
       version_specifier: "~=2.16.0a"
       dists:
         - jammy
-        - lunar
         - mantic
     - name: ansible
       version_specifier: "~=9.0a"
       dists:
         - jammy
-        - lunar
         - mantic
 testing-ansible-ansible-9:
   github_branch: ansible-9
@@ -57,13 +53,11 @@ testing-ansible-ansible-9:
       version_specifier: "~=2.16.0a"
       dists:
         - jammy
-        - lunar
         - mantic
     - name: ansible
       version_specifier: "~=9.0a"
       dists:
         - jammy
-        - lunar
         - mantic
 ansible-6:
   packages:
@@ -91,25 +85,21 @@ ansible-8:
       version_specifier: "~=2.15.0"
       dists:
         - jammy
-        - lunar
     - name: ansible
       version_specifier: "~=8.0"
       dists:
         - jammy
-        - lunar
 ansible-9:
   packages:
     - name: ansible-core
       version_specifier: "~=2.16.0"
       dists:
         - jammy
-        - lunar
         - mantic
     - name: ansible
       version_specifier: "~=9.0"
       dists:
         - jammy
-        - lunar
         - mantic
 ansible-ansible-8:
   github_branch: ansible-8
@@ -119,9 +109,7 @@ ansible-ansible-8:
       version_specifier: "~=2.15.0"
       dists:
         - jammy
-        - lunar
     - name: ansible
       version_specifier: "~=8.0"
       dists:
         - jammy
-        - lunar
