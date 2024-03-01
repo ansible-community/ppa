@@ -101,15 +101,17 @@ ansible-9:
       dists:
         - jammy
         - mantic
-ansible-ansible-8:
-  github_branch: ansible-8
+ansible-ansible-9:
+  github_branch: ansible-9
   launchpad_ppa: ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.15.0"
+      version_specifier: "~=2.16.0"
       dists:
         - jammy
+        - mantic
     - name: ansible
-      version_specifier: "~=8.0"
+      version_specifier: "~=9.0"
       dists:
         - jammy
+        - mantic
