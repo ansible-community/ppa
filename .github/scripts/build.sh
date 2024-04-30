@@ -16,7 +16,7 @@ fi
 
 rm -rf "${HOME:?}"/"${DEB_NAME:?}"
 mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
-wget "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME}"/"${DEB_NAME}"-"${DEB_VERSION}".tar.gz
+wget -O "${DEB_NAME}"-"${DEB_VERSION}".tar.gz "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME//-/_}"/"${DEB_NAME//-/_}"-"${DEB_VERSION}".tar.gz
 
 DATE=$(date -Ru)
 export DATE
@@ -25,7 +25,7 @@ for DIST in ${DEB_DIST}; do
   export DIST
 
   mkdir -p "${DIST}"
-  tar -C "${DIST}" -xzf "${DEB_NAME}"-"${DEB_VERSION}".tar.gz
+  tar -C "${DIST}" -xzf "${DEB_NAME}"-"${DEB_VERSION}".tar.gz --one-top-level="${DEB_NAME}"-"${DEB_VERSION}" --strip-components=1
   cp -av "${DEB_NAME}"-"${DEB_VERSION}".tar.gz "${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}".orig.tar.gz
 
   cd "${DIST}"/"${DEB_NAME}"-"${DEB_VERSION}" || exit
