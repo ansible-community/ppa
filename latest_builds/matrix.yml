@@ -40,11 +40,13 @@ testing-ansible-9:
       dists:
         - jammy
         - mantic
+        - noble
     - name: ansible
       version_specifier: "~=9.0a"
       dists:
         - jammy
         - mantic
+        - noble
 testing-ansible-ansible-9:
   github_branch: ansible-9
   launchpad_ppa: testing-ansible
@@ -54,11 +56,13 @@ testing-ansible-ansible-9:
       dists:
         - jammy
         - mantic
+        - noble
     - name: ansible
       version_specifier: "~=9.0a"
       dists:
         - jammy
         - mantic
+        - noble
 ansible-6:
   packages:
     - name: ansible-core
@@ -96,11 +100,13 @@ ansible-9:
       dists:
         - jammy
         - mantic
+        - noble
     - name: ansible
       version_specifier: "~=9.0"
       dists:
         - jammy
         - mantic
+        - noble
 ansible-ansible-9:
   github_branch: ansible-9
   launchpad_ppa: ansible
@@ -110,8 +116,10 @@ ansible-ansible-9:
       dists:
         - jammy
         - mantic
+        - noble
     - name: ansible
       version_specifier: "~=9.0"
       dists:
         - jammy
         - mantic
+        - noble
