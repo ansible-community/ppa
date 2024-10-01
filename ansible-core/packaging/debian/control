@@ -11,6 +11,7 @@ Build-Depends:
  debhelper-compat (= 13),
  devscripts,
  dh-python,
+ pybuild-plugin-pyproject,
  python3-setuptools,
  python3
 Standards-Version: 4.4.1

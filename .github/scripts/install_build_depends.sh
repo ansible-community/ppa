@@ -6,6 +6,7 @@ sudo apt-get -y install \
     debhelper \
     devscripts \
     dh-python \
+    pybuild-plugin-pyproject \
     python3-pip \
     python3-setuptools \
     python3 \
