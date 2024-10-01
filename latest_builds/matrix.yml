@@ -58,17 +58,17 @@ testing-ansible-10:
       dists:
         - jammy
         - noble
-testing-ansible-ansible-9:
-  github_branch: ansible-9
+testing-ansible-ansible-10:
+  github_branch: ansible-10
   launchpad_ppa: testing-ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.16.0a"
+      version_specifier: "~=2.17.0a"
       dists:
         - jammy
         - noble
     - name: ansible
-      version_specifier: "~=9.0a"
+      version_specifier: "~=10.0a"
       dists:
         - jammy
         - noble
@@ -126,17 +126,17 @@ ansible-10:
       dists:
         - jammy
         - noble
-ansible-ansible-9:
-  github_branch: ansible-9
+ansible-ansible-10:
+  github_branch: ansible-10
   launchpad_ppa: ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.16.0"
+      version_specifier: "~=2.17.0"
       dists:
         - jammy
         - noble
     - name: ansible
-      version_specifier: "~=9.0"
+      version_specifier: "~=10.0"
       dists:
         - jammy
         - noble
