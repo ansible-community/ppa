@@ -44,7 +44,7 @@ for DIST in ${DEB_DIST}; do
 
     export DESCRIPTION='man1'
     export ORIGIN='https://github.com/ansible/ansible'
-    pip install --requirement requirements.txt docutils
+    pip install --break-system-packages --requirement requirements.txt docutils
     packaging/cli-doc/build.py man --output-dir docs/man/man1
     envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/templates/local-patch-header > ./debian/source/local-patch-header
     EDITOR=/bin/true dpkg-source --commit . man1
