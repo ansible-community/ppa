@@ -8,6 +8,7 @@ Priority: optional
 Maintainer: Ansible Community Builds <ansible-community-builds@redhat.com>
 Uploaders: Ansible GitHub Actions <ansible-gha@redhat.com>
 Build-Depends:
+ build-essential,
  debhelper-compat (= 13),
  devscripts,
  dh-python,
