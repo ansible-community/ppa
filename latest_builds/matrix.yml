@@ -65,10 +65,12 @@ testing-ansible-11:
       version_specifier: "~=2.18.0a"
       dists:
         - noble
+        - oracular
     - name: ansible
       version_specifier: "~=11.0a"
       dists:
         - noble
+        - oracular
 testing-ansible-ansible-10:
   github_branch: ansible-10
   launchpad_ppa: testing-ansible
@@ -89,10 +91,12 @@ testing-ansible-ansible-11:
       version_specifier: "~=2.18.0a"
       dists:
         - noble
+        - oracular
     - name: ansible
       version_specifier: "~=11.0a"
       dists:
         - noble
+        - oracular
 ansible-6:
   packages:
     - name: ansible-core
@@ -153,10 +157,12 @@ ansible-11:
       version_specifier: "~=2.18.0"
       dists:
         - noble
+        - oracular
     - name: ansible
       version_specifier: "~=11.0"
       dists:
         - noble
+        - oracular
 ansible-ansible-10:
   github_branch: ansible-10
   launchpad_ppa: ansible
