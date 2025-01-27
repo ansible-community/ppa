@@ -1,37 +1,4 @@
 ---
-testing-ansible-6:
-  github_branch: ansible-6
-  packages:
-    - name: ansible-core
-      version_specifier: "~=2.13.1a"
-      dists:
-        - jammy
-    - name: ansible
-      version_specifier: "~=6.1a"
-      dists:
-        - jammy
-testing-ansible-7:
-  github_branch: ansible-7
-  packages:
-    - name: ansible-core
-      version_specifier: "~=2.14.0a"
-      dists:
-        - jammy
-    - name: ansible
-      version_specifier: "~=7.0a"
-      dists:
-        - jammy
-testing-ansible-8:
-  github_branch: ansible-8
-  packages:
-    - name: ansible-core
-      version_specifier: "~=2.15.0a"
-      dists:
-        - jammy
-    - name: ansible
-      version_specifier: "~=8.0a"
-      dists:
-        - jammy
 testing-ansible-9:
   github_branch: ansible-9
   packages:
@@ -97,36 +64,6 @@ testing-ansible-ansible-11:
       dists:
         - noble
         - oracular
-ansible-6:
-  packages:
-    - name: ansible-core
-      version_specifier: "~=2.13.1"
-      dists:
-        - jammy
-    - name: ansible
-      version_specifier: "~=6.1"
-      dists:
-        - jammy
-ansible-7:
-  packages:
-    - name: ansible-core
-      version_specifier: "~=2.14.0"
-      dists:
-        - jammy
-    - name: ansible
-      version_specifier: "~=7.0"
-      dists:
-        - jammy
-ansible-8:
-  packages:
-    - name: ansible-core
-      version_specifier: "~=2.15.0"
-      dists:
-        - jammy
-    - name: ansible
-      version_specifier: "~=8.0"
-      dists:
-        - jammy
 ansible-9:
   packages:
     - name: ansible-core
