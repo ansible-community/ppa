@@ -108,9 +108,21 @@ ansible-ansible-10:
       version_specifier: "~=2.17.0"
       dists:
         - jammy
-        - noble
     - name: ansible
       version_specifier: "~=10.0"
       dists:
         - jammy
+ansible-ansible-11:
+  github_branch: ansible-11
+  launchpad_ppa: ansible
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.18.0"
+      dists:
         - noble
+        - oracular
+    - name: ansible
+      version_specifier: "~=11.0"
+      dists:
+        - noble
+        - oracular
