@@ -38,6 +38,21 @@ testing-ansible-11:
       dists:
         - noble
         - oracular
+testing-ansible-12:
+  github_branch: ansible-12
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.19.0a"
+      dists:
+        - noble
+        - oracular
+        - plucky
+    - name: ansible
+      version_specifier: "~=12.0a"
+      dists:
+        - noble
+        - oracular
+        - plucky
 testing-ansible-ansible-10:
   github_branch: ansible-10
   launchpad_ppa: testing-ansible
@@ -50,20 +65,22 @@ testing-ansible-ansible-10:
       version_specifier: "~=10.0a"
       dists:
         - jammy
-testing-ansible-ansible-11:
-  github_branch: ansible-11
+testing-ansible-ansible-12:
+  github_branch: ansible-12
   launchpad_ppa: testing-ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.18.0a"
+      version_specifier: "~=2.19.0a"
       dists:
         - noble
         - oracular
+        - plucky
     - name: ansible
-      version_specifier: "~=11.0a"
+      version_specifier: "~=12.0a"
       dists:
         - noble
         - oracular
+        - plucky
 ansible-9:
   packages:
     - name: ansible-core
@@ -100,6 +117,20 @@ ansible-11:
       dists:
         - noble
         - oracular
+ansible-12:
+  packages:
+    - name: ansible-core
+      version_specifier: "~=2.19.0"
+      dists:
+        - noble
+        - oracular
+        - plucky
+    - name: ansible
+      version_specifier: "~=12.0"
+      dists:
+        - noble
+        - oracular
+        - plucky
 ansible-ansible-10:
   github_branch: ansible-10
   launchpad_ppa: ansible
