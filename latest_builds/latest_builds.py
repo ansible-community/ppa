@@ -9,6 +9,7 @@ from packaging.version import Version
 from pathlib import Path
 from time import sleep
 
+
 try:
     from yaml import CSafeLoader as SafeLoader
 except ImportError:
@@ -109,13 +110,14 @@ for name, config in matrix.items():
             pypi_releases[package["name"]] = available_releases
 
         filtered_versions = sorted(
-            SpecifierSet(package["version_specifier"]).filter(pypi_releases[package["name"]]), reverse=True
+            SpecifierSet(package["version_specifier_set"]).filter(pypi_releases[package["name"]]),
+            reverse=True,
         )
 
         try:
             latest_pypi_version = filtered_versions[0]
         except IndexError:
-            print(f"    '{package['name']}' version matching '{package['version_specifier']}' not found")
+            print(f"    '{package['name']}' version matching '{package['version_specifier_set']}' not found")
             continue
 
         build_dists = []
@@ -147,9 +149,7 @@ for build in builds:
 
     workflow = get_workflow(workflows, name)
 
-    print(
-        f"    running '{workflow['name']}' workflow against '{github_branch_name}' ref for '{launchpad_ppa_name}' ppa"
-    )
+    print(f"    running '{workflow['name']}' workflow against '{github_branch_name}' ref for '{launchpad_ppa_name}' ppa")
 
     run_in_progress = True
     data = {

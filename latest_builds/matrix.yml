@@ -3,12 +3,12 @@ testing-ansible-9:
   github_branch: ansible-9
   packages:
     - name: ansible-core
-      version_specifier: "~=2.16.0a"
+      version_specifier_set: "~=2.16.0a"
       dists:
         - jammy
         - noble
     - name: ansible
-      version_specifier: "~=9.0a"
+      version_specifier_set: "~=9.0a"
       dists:
         - jammy
         - noble
@@ -16,12 +16,12 @@ testing-ansible-10:
   github_branch: ansible-10
   packages:
     - name: ansible-core
-      version_specifier: "~=2.17.0a"
+      version_specifier_set: "~=2.17.0a"
       dists:
         - jammy
         - noble
     - name: ansible
-      version_specifier: "~=10.0a"
+      version_specifier_set: "~=10.0a"
       dists:
         - jammy
         - noble
@@ -29,23 +29,23 @@ testing-ansible-11:
   github_branch: ansible-11
   packages:
     - name: ansible-core
-      version_specifier: "~=2.18.0a"
+      version_specifier_set: "~=2.18.0a"
       dists:
         - noble
     - name: ansible
-      version_specifier: "~=11.0a"
+      version_specifier_set: "~=11.0a"
       dists:
         - noble
 testing-ansible-12:
   github_branch: ansible-12
   packages:
     - name: ansible-core
-      version_specifier: "~=2.19.0a"
+      version_specifier_set: "~=2.19.0a"
       dists:
         - noble
         - plucky
     - name: ansible
-      version_specifier: "~=12.0a"
+      version_specifier_set: "~=12.0a"
       dists:
         - noble
         - plucky
@@ -53,13 +53,13 @@ testing-ansible-13:
   github_branch: ansible-13
   packages:
     - name: ansible-core
-      version_specifier: "~=2.20.0a"
+      version_specifier_set: "~=2.20.0a"
       dists:
         - noble
         - plucky
         - questing
     - name: ansible
-      version_specifier: "~=13.0a"
+      version_specifier_set: "~=13.0a"
       dists:
         - noble
         - plucky
@@ -69,11 +69,11 @@ testing-ansible-ansible-10:
   launchpad_ppa: testing-ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.17.0a"
+      version_specifier_set: "~=2.17.0a"
       dists:
         - jammy
     - name: ansible
-      version_specifier: "~=10.0a"
+      version_specifier_set: "~=10.0a"
       dists:
         - jammy
 testing-ansible-ansible-13:
@@ -81,13 +81,13 @@ testing-ansible-ansible-13:
   launchpad_ppa: testing-ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.20.0a"
+      version_specifier_set: "~=2.20.0a"
       dists:
         - noble
         - plucky
         - questing
     - name: ansible
-      version_specifier: "~=13.0a"
+      version_specifier_set: "~=13.0a"
       dists:
         - noble
         - plucky
@@ -95,59 +95,59 @@ testing-ansible-ansible-13:
 ansible-9:
   packages:
     - name: ansible-core
-      version_specifier: "~=2.16.0"
+      version_specifier_set: "~=2.16.0"
       dists:
         - jammy
         - noble
     - name: ansible
-      version_specifier: "~=9.0"
+      version_specifier_set: "~=9.0"
       dists:
         - jammy
         - noble
 ansible-10:
   packages:
     - name: ansible-core
-      version_specifier: "~=2.17.0"
+      version_specifier_set: "~=2.17.0"
       dists:
         - jammy
         - noble
     - name: ansible
-      version_specifier: "~=10.0"
+      version_specifier_set: "~=10.0"
       dists:
         - jammy
         - noble
 ansible-11:
   packages:
     - name: ansible-core
-      version_specifier: "~=2.18.0"
+      version_specifier_set: "~=2.18.0"
       dists:
         - noble
     - name: ansible
-      version_specifier: "~=11.0"
+      version_specifier_set: "~=11.0"
       dists:
         - noble
 ansible-12:
   packages:
     - name: ansible-core
-      version_specifier: "~=2.19.0"
+      version_specifier_set: "~=2.19.0"
       dists:
         - noble
         - plucky
     - name: ansible
-      version_specifier: "~=12.0"
+      version_specifier_set: "~=12.0"
       dists:
         - noble
         - plucky
 ansible-13:
   packages:
     - name: ansible-core
-      version_specifier: "~=2.20.0"
+      version_specifier_set: "~=2.20.0"
       dists:
         - noble
         - plucky
         - questing
     - name: ansible
-      version_specifier: "~=13.0"
+      version_specifier_set: "~=13.0"
       dists:
         - noble
         - plucky
@@ -157,11 +157,11 @@ ansible-ansible-10:
   launchpad_ppa: ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.17.0"
+      version_specifier_set: "~=2.17.0"
       dists:
         - jammy
     - name: ansible
-      version_specifier: "~=10.0"
+      version_specifier_set: "~=10.0"
       dists:
         - jammy
 ansible-ansible-11:
@@ -169,10 +169,10 @@ ansible-ansible-11:
   launchpad_ppa: ansible
   packages:
     - name: ansible-core
-      version_specifier: "~=2.18.0"
+      version_specifier_set: "~=2.18.0"
       dists:
         - noble
     - name: ansible
-      version_specifier: "~=11.0"
+      version_specifier_set: "~=11.0"
       dists:
         - noble

@@ -251,19 +251,19 @@ Example of adding a new build: Ansible 8
       github_branch: ansible-8
       packages:
         - name: ansible-core
-          version_specifier: "~=2.15.0a"  # includes pre-releases
+          version_specifier_set: "~=2.15.0a"  # includes pre-releases
           dists:
             - jammy
             - kinetic
             - lunar
         - name: ansible
-          version_specifier: "~=8.0a"  # includes pre-releases
+          version_specifier_set: "~=8.0a"  # includes pre-releases
           dists:
             - jammy
             - kinetic
             - lunar
     ```
-    For more information on the `version_specifier` see https://packaging.pypa.io/en/latest/specifiers.html
+    For more information on the `version_specifier_set` see https://packaging.pypa.io/en/latest/specifiers.html
 1. Update the build matrix in https://github.com/ansible-community/ppa/issues/1
 1. Wait for the next scheduled run or manually kick off another build.
 1. Once the builds are completed successfully, add (or bump the version of an existing entry) for the `testing-ansible` PPA
@@ -273,13 +273,13 @@ Example of adding a new build: Ansible 8
       launchpad_ppa: testing-ansible  # name used for the PPA
       packages:
         - name: ansible-core
-          version_specifier: "~=2.15.0a"
+          version_specifier_set: "~=2.15.0a"
           dists:
             - jammy
             - kinetic
             - lunar
         - name: ansible
-          version_specifier: "~=8.0a"
+          version_specifier_set: "~=8.0a"
           dists:
             - jammy
             - kinetic
@@ -293,13 +293,13 @@ Example of adding a new build: Ansible 8
           github_branch: ansible-8
           packages:
             - name: ansible-core
-              version_specifier: "~=2.15.0"  # does not include pre-releases
+              version_specifier_set: "~=2.15.0"  # does not include pre-releases
               dists:
                 - jammy
                 - kinetic
                 - lunar
             - name: ansible
-              version_specifier: "~=8.0"  # does not include pre-releases
+              version_specifier_set: "~=8.0"  # does not include pre-releases
               dists:
                 - jammy
                 - kinetic
@@ -312,13 +312,13 @@ Example of adding a new build: Ansible 8
           launchpad_ppa: ansible
           packages:
             - name: ansible-core
-              version_specifier: "~=2.15.0"
+              version_specifier_set: "~=2.15.0"
               dists:
                 - jammy
                 - kinetic
                 - lunar
             - name: ansible
-              version_specifier: "~=8.0"
+              version_specifier_set: "~=8.0"
               dists:
                 - jammy
                 - kinetic
