@@ -43,12 +43,10 @@ testing-ansible-12:
       version_specifier_set: ">=2.19.0a,<2.20.0a"
       dists:
         - noble
-        - plucky
     - name: ansible
       version_specifier_set: ">=12.0.0a,<13.0.0a"
       dists:
         - noble
-        - plucky
 testing-ansible-13:
   github_branch: ansible-13
   packages:
@@ -56,13 +54,11 @@ testing-ansible-13:
       version_specifier_set: ">=2.20.0a,<2.21.0a"
       dists:
         - noble
-        - plucky
         - questing
     - name: ansible
       version_specifier_set: ">=13.0.0a,<14.0.0a"
       dists:
         - noble
-        - plucky
         - questing
 testing-ansible-ansible-10:
   github_branch: ansible-10
@@ -84,13 +80,11 @@ testing-ansible-ansible-13:
       version_specifier_set: ">=2.20.0a,<2.21.0a"
       dists:
         - noble
-        - plucky
         - questing
     - name: ansible
       version_specifier_set: ">=13.0.0a,<14.0.0a"
       dists:
         - noble
-        - plucky
         - questing
 ansible-9:
   packages:
@@ -132,25 +126,21 @@ ansible-12:
       version_specifier_set: ">=2.19.0,<2.20.0"
       dists:
         - noble
-        - plucky
     - name: ansible
       version_specifier_set: ">=12.0.0,<13.0.0"
       dists:
         - noble
-        - plucky
 ansible-13:
   packages:
     - name: ansible-core
       version_specifier_set: ">=2.20.0,<2.21.0"
       dists:
         - noble
-        - plucky
         - questing
     - name: ansible
       version_specifier_set: ">=13.0.0,<14.0.0"
       dists:
         - noble
-        - plucky
         - questing
 ansible-ansible-10:
   github_branch: ansible-10
@@ -172,11 +162,9 @@ ansible-ansible-13:
       version_specifier_set: ">=2.20.0,<2.21.0"
       dists:
         - noble
-        - plucky
         - questing
     - name: ansible
       version_specifier_set: ">=13.0.0,<14.0.0"
       dists:
         - noble
-        - plucky
         - questing
