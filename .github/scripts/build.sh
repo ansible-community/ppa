@@ -45,9 +45,9 @@ for DIST in ${DEB_DIST}; do
     MAX_RETRIES=5
     RETRY_DELAY=60
     
-    until wget --spider https://github.com/ansible/ansible-documentation/archive/refs/tags/v"${DEB_VERSION}".tar.gz 2>&1 | grep -q '200 OK'; do
+    until wget --spider -S https://github.com/ansible/ansible-documentation/archive/refs/tags/v"${DEB_VERSION}".tar.gz 2>&1 | grep -q 'HTTP/.* 200'; do
       RETRY_COUNT=$((RETRY_COUNT+1))
-      if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+      if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
         echo "ERROR: ansible-documentation tag v${DEB_VERSION} not found after $MAX_RETRIES attempts (waited $((MAX_RETRIES * RETRY_DELAY)) seconds)"
         echo "This may indicate:"
         echo "  1. The documentation tag hasn't been created yet"
@@ -56,7 +56,7 @@ for DIST in ${DEB_DIST}; do
         exit 1
       fi
       echo "Tag not available yet. Retry $RETRY_COUNT/$MAX_RETRIES: Waiting ${RETRY_DELAY}s for ansible-documentation tag v${DEB_VERSION}..."
-      sleep $RETRY_DELAY
+      sleep "$RETRY_DELAY"
     done
     
     echo "Tag v${DEB_VERSION} verified. Downloading ansible-documentation examples..."
