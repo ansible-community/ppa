@@ -38,6 +38,28 @@ for DIST in ${DEB_DIST}; do
   if [[ "${DEB_NAME}" == "ansible-core" ]]; then
     export DESCRIPTION='examples'
     export ORIGIN='https://github.com/ansible/ansible-documentation'
+    
+    # Verify tag exists before attempting download
+    echo "Verifying ansible-documentation tag v${DEB_VERSION} exists..."
+    RETRY_COUNT=0
+    MAX_RETRIES=5
+    RETRY_DELAY=60
+    
+    until wget --spider https://github.com/ansible/ansible-documentation/archive/refs/tags/v"${DEB_VERSION}".tar.gz 2>&1 | grep -q '200 OK'; do
+      RETRY_COUNT=$((RETRY_COUNT+1))
+      if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+        echo "ERROR: ansible-documentation tag v${DEB_VERSION} not found after $MAX_RETRIES attempts (waited $((MAX_RETRIES * RETRY_DELAY)) seconds)"
+        echo "This may indicate:"
+        echo "  1. The documentation tag hasn't been created yet"
+        echo "  2. There's a version mismatch between ansible-core and ansible-documentation"
+        echo "  3. The tag name format is different"
+        exit 1
+      fi
+      echo "Tag not available yet. Retry $RETRY_COUNT/$MAX_RETRIES: Waiting ${RETRY_DELAY}s for ansible-documentation tag v${DEB_VERSION}..."
+      sleep $RETRY_DELAY
+    done
+    
+    echo "Tag v${DEB_VERSION} verified. Downloading ansible-documentation examples..."
     wget https://github.com/ansible/ansible-documentation/archive/refs/tags/v"${DEB_VERSION}".tar.gz -O - | tar -xzvf - --strip=1 ansible-documentation-"${DEB_VERSION}"/examples/{ansible.cfg,hosts} || exit
     envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/templates/local-patch-header > ./debian/source/local-patch-header
     EDITOR=/bin/true dpkg-source --commit . examples
