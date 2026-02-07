@@ -56,7 +56,7 @@ for DIST in ${DEB_DIST}; do
         exit 1
       fi
       echo "Tag not available yet. Retry $RETRY_COUNT/$MAX_RETRIES: Waiting ${RETRY_DELAY}s for ansible-documentation tag v${DEB_VERSION}..."
-      sleep $RETRY_DELAY
+      sleep "$RETRY_DELAY"
     done
     
     echo "Tag v${DEB_VERSION} verified. Downloading ansible-documentation examples..."
