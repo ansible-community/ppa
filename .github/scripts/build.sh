@@ -34,6 +34,15 @@ for DIST in ${DEB_DIST}; do
   cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/debian ./
   envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/templates/changelog > ./debian/changelog
 
+  # Fix setuptools < 77 PEP 639 compatibility for older Ubuntu distros like Noble
+  if [[ -f "pyproject.toml" ]]; then
+    SETUPTOOLS_VER=$(python3 -c 'import setuptools; print(setuptools.__version__.split(".")[0])' 2>/dev/null)
+    if [[ "${SETUPTOOLS_VER}" -lt 77 ]]; then
+      sed -i 's/^license = "GPL-3.0-or-later"/license = {text = "GPL-3.0-or-later"}/' pyproject.toml
+      sed -i '/^license-files = \[/,/\]/d' pyproject.toml
+    fi
+  fi
+
   # include the examples and man1 if ansible-core
   if [[ "${DEB_NAME}" == "ansible-core" ]]; then
     export DESCRIPTION='examples'
