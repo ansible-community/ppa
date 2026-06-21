@@ -21,6 +21,8 @@ wget -O "${DEB_NAME}"-"${DEB_VERSION}".tar.gz "${TARBALL_BASE_URL}"/"${DEB_NAME:
 DATE=$(date -Ru)
 export DATE
 
+UPLOAD_FAILURES=0
+
 for DIST in ${DEB_DIST}; do
   export DIST
 
@@ -55,5 +57,28 @@ for DIST in ${DEB_DIST}; do
 
   debuild -S -k"${DEBSIGN_KEYID}" -p"${DEB_SIGN_PROGRAM}"
   cd - || exit
-  dput "${LAUNCHPAD_PPA}" "${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
+
+  CHANGES="${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
+  UPLOADED=false
+  for ATTEMPT in 1 2 3 4 5 6; do
+    if dput "${LAUNCHPAD_PPA}" "${CHANGES}"; then
+      UPLOADED=true
+      break
+    fi
+    if [[ "${ATTEMPT}" -lt 6 ]]; then
+      DELAY=$((30 * 2 ** (ATTEMPT - 1)))
+      echo "dput: ${DIST} upload failed (attempt ${ATTEMPT}/6); retrying in ${DELAY}s"
+      sleep "${DELAY}"
+    fi
+  done
+
+  if [[ "${UPLOADED}" != true ]]; then
+    echo "ERROR: ${DIST} upload failed after 6 attempts"
+    UPLOAD_FAILURES=$((UPLOAD_FAILURES + 1))
+  fi
 done
+
+if [[ "${UPLOAD_FAILURES}" -ne 0 ]]; then
+  echo "ERROR: ${UPLOAD_FAILURES} dist(s) failed to upload after retries"
+  exit 1
+fi
