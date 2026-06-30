@@ -66,7 +66,7 @@ for DIST in ${DEB_DIST}; do
       break
     fi
     if [[ "${ATTEMPT}" -lt 6 ]]; then
-      DELAY=$((30 * 2 ** (ATTEMPT - 1)))
+      DELAY=$((5 * ATTEMPT))
       echo "dput: ${DIST} upload failed (attempt ${ATTEMPT}/6); retrying in ${DELAY}s"
       sleep "${DELAY}"
     fi
