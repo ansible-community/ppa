@@ -71,6 +71,19 @@ testing-ansible-14:
       dists:
         - noble
         - resolute
+testing-ansible-15:
+  github_branch: ansible-15
+  packages:
+    - name: ansible-core
+      version_specifier_set: ">=2.22.0a,<2.23.0a"
+      dists:
+        - resolute
+        - stonking
+    - name: ansible
+      version_specifier_set: ">=15.0.0a,<16.0.0a"
+      dists:
+        - resolute
+        - stonking
 testing-ansible-ansible-10:
   github_branch: ansible-10
   launchpad_ppa: testing-ansible
