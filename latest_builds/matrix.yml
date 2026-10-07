@@ -104,12 +104,24 @@ testing-ansible-ansible-14:
       version_specifier_set: ">=2.21.0a,<2.22.0a"
       dists:
         - noble
-        - resolute
     - name: ansible
       version_specifier_set: ">=14.0.0a,<15.0.0a"
       dists:
         - noble
+testing-ansible-ansible-15:
+  github_branch: ansible-15
+  launchpad_ppa: testing-ansible
+  packages:
+    - name: ansible-core
+      version_specifier_set: ">=2.22.0a,<2.23.0a"
+      dists:
         - resolute
+        - stonking
+    - name: ansible
+      version_specifier_set: ">=15.0.0a,<16.0.0a"
+      dists:
+        - resolute
+        - stonking
 ansible-9:
   packages:
     - name: ansible-core
@@ -176,6 +188,18 @@ ansible-14:
       dists:
         - noble
         - resolute
+ansible-15:
+  packages:
+    - name: ansible-core
+      version_specifier_set: ">=2.22.0,<2.23.0"
+      dists:
+        - resolute
+        - stonking
+    - name: ansible
+      version_specifier_set: ">=15.0.0,<16.0.0"
+      dists:
+        - resolute
+        - stonking
 ansible-ansible-10:
   github_branch: ansible-10
   launchpad_ppa: ansible
