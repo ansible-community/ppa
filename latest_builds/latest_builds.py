@@ -17,7 +17,6 @@ except ImportError:
     from yaml import SafeLoader
 
 
-ARCH = "amd64"
 MATRIX = Path(__file__).resolve().parent / "matrix.yml"
 HTTP_TIMEOUT = 30  # seconds per request
 POLL_INTERVAL = 30  # seconds between checks on the dispatched runs
@@ -42,18 +41,21 @@ def env(name):
     return value
 
 
-def published_versions(ppa):
-    """Highest published version of each source package per dist, e.g. {("ansible-core", "noble"): Version("2.21.5")}."""
+def uploaded_versions(ppa):
+    """Highest version of each source package uploaded per dist, e.g. {("ansible-core", "noble"): Version("2.21.5")}.
+
+    An upload counts from the moment Launchpad accepts it, even while it is still building or after it is deleted,
+    because Launchpad never accepts the same version again. Superseded uploads, most of a PPA's history, are skipped:
+    each was replaced by a higher version that is counted (or was itself superseded by one that is).
+    """
     versions = {}
-    for pb in ppa.getPublishedBinaries(status="Published"):
-        if pb.display_name.split()[-1] != ARCH:
-            continue
-        dist = pb.binary_package_version.split("~")[-1]
+    for sp in ppa.getPublishedSources(status=["Pending", "Published", "Deleted", "Obsolete"]):
+        dist = sp.distro_series_link.rsplit("/", 1)[-1]
         try:
-            version = Version(pb.binary_package_version.split("-")[0].replace("~", ""))
+            version = Version(sp.source_package_version.split("-")[0].replace("~", ""))
         except InvalidVersion:
             continue
-        key = (pb.source_package_name, dist)
+        key = (sp.source_package_name, dist)
         if key not in versions or version > versions[key]:
             versions[key] = version
     return versions
@@ -77,7 +79,7 @@ def pypi_versions(session, package):
 def plan_builds(matrix, launchpad_project, pypi, errors):
     """Compare each matrix entry's PPA with PyPI and return the builds needed to catch up."""
     ppas = {ppa.name: ppa for ppa in launchpad_project.ppas}
-    published = {}
+    uploaded = {}
     pypi_releases = {}
     builds = []
 
@@ -93,8 +95,8 @@ def plan_builds(matrix, launchpad_project, pypi, errors):
             errors.append(f"'{name}': PPA '{launchpad_ppa}' not found in the Launchpad project")
             continue
 
-        if launchpad_ppa not in published:
-            published[launchpad_ppa] = published_versions(ppas[launchpad_ppa])
+        if launchpad_ppa not in uploaded:
+            uploaded[launchpad_ppa] = uploaded_versions(ppas[launchpad_ppa])
 
         for package in config["packages"]:
             package_name = package["name"]
@@ -116,7 +118,7 @@ def plan_builds(matrix, launchpad_project, pypi, errors):
 
             build_dists = []
             for dist in package["dists"]:
-                current = published[launchpad_ppa].get((package_name, dist))
+                current = uploaded[launchpad_ppa].get((package_name, dist))
                 if current is None:
                     print(f"    '{dist}' version not found")
                     build_dists.append(dist)
