@@ -1,14 +1,15 @@
+import argparse
 import os
 import requests
+import sys
 import yaml
 
-from collections import defaultdict
+from dataclasses import dataclass
 from launchpadlib.launchpad import Launchpad
 from packaging.specifiers import SpecifierSet
-from packaging.version import Version
+from packaging.version import InvalidVersion, Version
 from pathlib import Path
-from time import sleep
-
+from time import monotonic, sleep
 
 try:
     from yaml import CSafeLoader as SafeLoader
@@ -16,161 +17,226 @@ except ImportError:
     from yaml import SafeLoader
 
 
-def get_workflow(workflows, name):
-    return next((workflow for workflow in workflows if workflow["name"] == name), None)
-
-
-GITHUB_WORKSPACE = os.environ.get("GITHUB_WORKSPACE")
-
-if not GITHUB_WORKSPACE:
-    raise Exception("`GITHUB_WORKSPACE` not found!")
-
-GITHUB_API_URL = os.environ.get("GITHUB_API_URL")
-
-if not GITHUB_API_URL:
-    raise Exception("`GITHUB_API_URL` not found!")
-
-GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY")
-
-if not GITHUB_REPOSITORY:
-    raise Exception("`GITHUB_REPOSITORY` not found!")
-
-GITHUB_PAT = os.environ.get("GITHUB_PAT")
-
-if not GITHUB_PAT:
-    raise Exception("`GITHUB_PAT` not found!")
-
-LAUNCHPAD_PROJECT = os.environ.get("LAUNCHPAD_PROJECT")
-
-if not LAUNCHPAD_PROJECT:
-    raise Exception("`LAUNCHPAD_PROJECT` not found!")
-
 ARCH = "amd64"
+MATRIX = Path(__file__).resolve().parent / "matrix.yml"
+HTTP_TIMEOUT = 30  # seconds per request
+POLL_INTERVAL = 30  # seconds between checks on a dispatched run
+RUN_TIMEOUT = 2 * 60 * 60  # seconds to wait for one dispatched run before moving on
 
 
-with open(f"{GITHUB_WORKSPACE}/latest_builds/matrix.yml", "r") as f:
-    matrix = yaml.load(f, Loader=SafeLoader)
+@dataclass
+class Build:
+    package: str
+    version: Version
+    dists: list[str]
+    github_branch: str
+    launchpad_ppa: str
+    run_url: str | None = None
+    result: str | None = None  # the run's conclusion ("success", "failure", ...) or why there is none
 
-base_actions_url = f"{GITHUB_API_URL}/repos/{GITHUB_REPOSITORY}/actions"
-base_workflows_url = f"{base_actions_url}/workflows"
-base_runs_url = f"{base_actions_url}/runs"
 
-github_headers = {
-    "Accept": "application/vnd.github.v3+json",
-    "Authorization": f"Token {GITHUB_PAT}",
-}
+def env(name):
+    value = os.environ.get(name)
+    if not value:
+        sys.exit(f"`{name}` not found!")
+    return value
 
-s = requests.Session()
-s.headers.update(github_headers)
 
-r = s.get(base_workflows_url)
-
-if not r.ok:
-    raise Exception("workflows request failed")
-
-workflows = r.json()["workflows"]
-
-cache_dir = f"{Path.home()}/.launchpadlib/cache/"
-launchpad = Launchpad.login_anonymously("read-only", "production", cache_dir, version="devel")
-launchpad_project = launchpad.projects[LAUNCHPAD_PROJECT]
-
-pypi_releases = {}
-builds = []
-
-for name, config in matrix.items():
-    print(f"checking '{name}' package(s)")
-    github_branch_name = config.get("github_branch", name)
-    print(f"  github_branch = {github_branch_name}")
-    launchpad_ppa_name = config.get("launchpad_ppa", name)
-    print(f"  launchpad_ppa = {launchpad_ppa_name}")
-    launchpad_ppa = list(filter(lambda x: x.name == launchpad_ppa_name, launchpad_project.ppas))[0]
-
-    for package in config["packages"]:
-        print(f"  checking '{package['name']}' versions")
-
-        published_binaries = launchpad_ppa.getPublishedBinaries(status="Published")
-        dist_versions = defaultdict(lambda: Version("0.0.0"))
-
-        for pb in published_binaries:
-            if pb.source_package_name == package["name"] and pb.display_name.split()[-1] == ARCH:
-                dist = pb.binary_package_version.split("~")[-1]
-                version = Version(pb.binary_package_version.split("-")[0].replace("~", ""))
-                if version > dist_versions[dist]:
-                    dist_versions[dist] = version
-
-        if package["name"] not in pypi_releases:
-            r = requests.get(f"https://pypi.org/pypi/{package['name']}/json")
-
-            if not r.ok:
-                raise Exception("pypi request failed")
-
-            resp = r.json()
-
-            available_releases = [Version(k) for k, v in resp["releases"].items() if not any(x["yanked"] for x in v)]
-            pypi_releases[package["name"]] = available_releases
-
-        filtered_versions = sorted(
-            SpecifierSet(package["version_specifier_set"]).filter(pypi_releases[package["name"]]),
-            reverse=True,
-        )
-
+def published_versions(ppa):
+    """Highest published version of each source package per dist, e.g. {("ansible-core", "noble"): Version("2.21.5")}."""
+    versions = {}
+    for pb in ppa.getPublishedBinaries(status="Published"):
+        if pb.display_name.split()[-1] != ARCH:
+            continue
+        dist = pb.binary_package_version.split("~")[-1]
         try:
-            latest_pypi_version = filtered_versions[0]
-        except IndexError:
-            print(f"    '{package['name']}' version matching '{package['version_specifier_set']}' not found")
+            version = Version(pb.binary_package_version.split("-")[0].replace("~", ""))
+        except InvalidVersion:
+            continue
+        key = (pb.source_package_name, dist)
+        if key not in versions or version > versions[key]:
+            versions[key] = version
+    return versions
+
+
+def pypi_versions(session, package):
+    """All non-yanked releases of a package on PyPI."""
+    r = session.get(f"https://pypi.org/pypi/{package}/json", timeout=HTTP_TIMEOUT)
+    r.raise_for_status()
+    versions = []
+    for version, files in r.json()["releases"].items():
+        if any(f["yanked"] for f in files):
+            continue
+        try:
+            versions.append(Version(version))
+        except InvalidVersion:
+            continue
+    return versions
+
+
+def plan_builds(matrix, launchpad_project, pypi, errors):
+    """Compare each matrix entry's PPA with PyPI and return the builds needed to catch up."""
+    ppas = {ppa.name: ppa for ppa in launchpad_project.ppas}
+    published = {}
+    pypi_releases = {}
+    builds = []
+
+    for name, config in matrix.items():
+        print(f"checking '{name}' package(s)")
+        github_branch = config.get("github_branch", name)
+        print(f"  github_branch = {github_branch}")
+        launchpad_ppa = config.get("launchpad_ppa", name)
+        print(f"  launchpad_ppa = {launchpad_ppa}")
+
+        if launchpad_ppa not in ppas:
+            print(f"  ERROR: PPA '{launchpad_ppa}' not found")
+            errors.append(f"'{name}': PPA '{launchpad_ppa}' not found in the Launchpad project")
             continue
 
-        build_dists = []
+        if launchpad_ppa not in published:
+            published[launchpad_ppa] = published_versions(ppas[launchpad_ppa])
 
-        for dist in package["dists"]:
-            if dist not in dist_versions.keys():
-                print(f"    '{dist}' version not found")
-                build_dists.append(dist)
-            elif dist_versions[dist] < latest_pypi_version:
-                print(f"    '{dist}' version '{dist_versions[dist]}' < '{latest_pypi_version}'")
-                build_dists.append(dist)
+        for package in config["packages"]:
+            package_name = package["name"]
+            print(f"  checking '{package_name}' versions")
 
-        if not build_dists:
-            print(f"    '{package['name']}' on {package['dists']} is already at '{latest_pypi_version}'")
-            continue
+            if package_name not in pypi_releases:
+                try:
+                    pypi_releases[package_name] = pypi_versions(pypi, package_name)
+                except requests.RequestException as e:
+                    print(f"    ERROR: PyPI request failed: {e}")
+                    errors.append(f"'{name}': PyPI request for '{package_name}' failed: {e}")
+                    continue
 
-        print(f"    adding '{package['name']}' '{latest_pypi_version}' for {build_dists}")
-        builds.append([package["name"], build_dists, github_branch_name, latest_pypi_version, launchpad_ppa_name])
+            matching = sorted(SpecifierSet(package["version_specifier_set"]).filter(pypi_releases[package_name]), reverse=True)
+            if not matching:
+                print(f"    '{package_name}' version matching '{package['version_specifier_set']}' not found")
+                continue
+            latest = matching[0]
+
+            build_dists = []
+            for dist in package["dists"]:
+                current = published[launchpad_ppa].get((package_name, dist))
+                if current is None:
+                    print(f"    '{dist}' version not found")
+                    build_dists.append(dist)
+                elif current < latest:
+                    print(f"    '{dist}' version '{current}' < '{latest}'")
+                    build_dists.append(dist)
+
+            if not build_dists:
+                print(f"    '{package_name}' on {package['dists']} is already at '{latest}'")
+                continue
+
+            print(f"    adding '{package_name}' '{latest}' for {build_dists}")
+            builds.append(Build(package_name, latest, build_dists, github_branch, launchpad_ppa))
+
+    return builds
 
 
-for build in builds:
-    name, build_dists, github_branch_name, latest_pypi_version, launchpad_ppa_name = build
-    print(f"building '{name}' package(s)")
-    print(f"  github_branch = {github_branch_name}")
-    print(f"  launchpad_ppa = {launchpad_ppa_name}")
-    print(f"  building '{name}' versions")
-
-    print(f"    building '{name}' '{latest_pypi_version}' for {build_dists}")
-
-    workflow = get_workflow(workflows, name)
-
-    print(f"    running '{workflow['name']}' workflow against '{github_branch_name}' ref for '{launchpad_ppa_name}' ppa")
-
-    run_in_progress = True
+def run_build(github, actions_url, workflow_id, build, launchpad_project):
+    """Dispatch one build, wait for that exact run to finish, and return its conclusion."""
     data = {
-        "ref": github_branch_name,
+        "ref": build.github_branch,
         "inputs": {
-            "DEB_DIST": " ".join(build_dists),
-            "DEB_VERSION": str(latest_pypi_version),
-            "LAUNCHPAD_PROJECT": LAUNCHPAD_PROJECT,
-            "LAUNCHPAD_PPA": launchpad_ppa_name,
+            "DEB_DIST": " ".join(build.dists),
+            "DEB_VERSION": str(build.version),
+            "LAUNCHPAD_PROJECT": launchpad_project,
+            "LAUNCHPAD_PPA": build.launchpad_ppa,
         },
+        "return_run_details": True,
     }
-    p = s.post(f"{base_workflows_url}/{workflow['id']}/dispatches", json=data)
+    r = github.post(f"{actions_url}/workflows/{workflow_id}/dispatches", json=data, timeout=HTTP_TIMEOUT)
+    r.raise_for_status()
+    if r.status_code != 200:
+        return f"dispatched, but GitHub returned HTTP {r.status_code} without run details"
 
-    if not p.ok:
-        raise Exception("post failed!")
+    run = r.json()
+    build.run_url = run["html_url"]
+    print(f"    dispatched {build.run_url}")
 
-    while run_in_progress:
-        sleep(15)
-        r = s.get(base_runs_url, params={"per_page": 1})
-        if not r.ok:
-            print("      workflow query failed")
+    deadline = monotonic() + RUN_TIMEOUT
+    while monotonic() < deadline:
+        sleep(POLL_INTERVAL)
+        try:
+            r = github.get(run["run_url"], timeout=HTTP_TIMEOUT)
+            r.raise_for_status()
+        except requests.RequestException as e:
+            print(f"      checking the run failed, will retry: {e}")
             continue
-        workflow_runs = r.json()["workflow_runs"]
-        run_in_progress = any([workflow_run["status"] != "completed" for workflow_run in workflow_runs])
+        status = r.json()
+        if status["status"] == "completed":
+            print(f"      completed: {status['conclusion']}")
+            return status["conclusion"]
+
+    return f"still running after {RUN_TIMEOUT // 60} minutes"
+
+
+def report(builds, errors, dry_run):
+    """Print a summary table (also written to the GitHub job summary when available)."""
+    lines = ["## latest builds", ""]
+    if builds:
+        lines += ["| package | version | dists | PPA | branch | result |", "| --- | --- | --- | --- | --- | --- |"]
+        for b in builds:
+            result = "dry run" if dry_run else b.result
+            if b.run_url:
+                result = f"[{result}]({b.run_url})"
+            lines.append(f"| {b.package} | {b.version} | {' '.join(b.dists)} | {b.launchpad_ppa} | {b.github_branch} | {result} |")
+    else:
+        lines.append("Nothing to build.")
+    if errors:
+        lines += ["", "### errors", ""] + [f"- {e}" for e in errors]
+
+    summary = "\n".join(lines) + "\n"
+    print("\n" + summary)
+    if os.environ.get("GITHUB_STEP_SUMMARY"):
+        with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+            f.write(summary)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Dispatch builds for PPAs that are behind PyPI.")
+    parser.add_argument("--dry-run", action="store_true", help="only report what would be built; GitHub is not contacted")
+    args = parser.parse_args()
+
+    launchpad_project = env("LAUNCHPAD_PROJECT")
+
+    with open(MATRIX) as f:
+        matrix = yaml.load(f, Loader=SafeLoader)
+
+    cache_dir = f"{Path.home()}/.launchpadlib/cache/"
+    launchpad = Launchpad.login_anonymously("read-only", "production", cache_dir, version="devel")
+
+    errors = []
+    builds = plan_builds(matrix, launchpad.projects[launchpad_project], requests.Session(), errors)
+
+    if args.dry_run:
+        report(builds, errors, dry_run=True)
+        return 1 if errors else 0
+
+    actions_url = f"{env('GITHUB_API_URL')}/repos/{env('GITHUB_REPOSITORY')}/actions"
+    github = requests.Session()
+    github.headers.update({"Accept": "application/vnd.github+json", "Authorization": f"Bearer {env('GITHUB_TOKEN')}"})
+
+    r = github.get(f"{actions_url}/workflows", params={"per_page": 100}, timeout=HTTP_TIMEOUT)
+    r.raise_for_status()
+    workflows = {workflow["name"]: workflow["id"] for workflow in r.json()["workflows"]}
+
+    for build in builds:
+        print(f"building '{build.package}' '{build.version}' for {build.dists}")
+        print(f"  github_branch = {build.github_branch}")
+        print(f"  launchpad_ppa = {build.launchpad_ppa}")
+        if build.package not in workflows:
+            build.result = f"no '{build.package}' workflow found"
+            continue
+        try:
+            build.result = run_build(github, actions_url, workflows[build.package], build, launchpad_project)
+        except (requests.RequestException, KeyError) as e:
+            build.result = f"dispatch failed: {e!r}"
+
+    report(builds, errors, dry_run=False)
+    return 1 if errors or any(build.result != "success" for build in builds) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
