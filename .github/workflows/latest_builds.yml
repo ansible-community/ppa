@@ -5,7 +5,8 @@ on:
     - cron: "16 16 * * *"
   workflow_dispatch: {}
 permissions:
-  contents: read
+  actions: write  # dispatch the build workflows and follow their runs
+  contents: read  # check out the repo
 jobs:
   kick_off_builds:
     name: kick off builds
@@ -20,7 +21,7 @@ jobs:
         env:
           GITHUB_API_URL: ${{ github.api_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.PAT }}
+          GITHUB_TOKEN: ${{ github.token }}
           LAUNCHPAD_PROJECT: ${{ secrets.LAUNCHPAD_PROJECT }}
         run: |
           python3 -m pip install --upgrade pip

@@ -90,9 +90,9 @@ Along with the `main` branch, there is currently a branch for each major Ansible
 
 ## GitHub Actions / Workflows
 
-Currently, GitHub will only run `cron` scheduled workflows on the `main` branch (also note: `cron` scheduled workflows are disabled after 60 days of "inactivity"). So instead of running each of the individual branches as their own scheduled workflow, we use the `latest_builds.yml` workflow on the `main` branch to kick off builds on the other branches (via the repo `secret` `PAT` (GitHub Personal Access Token)) as necessary.
+Currently, GitHub will only run `cron` scheduled workflows on the `main` branch (also note: `cron` scheduled workflows are disabled after 60 days of "inactivity"). So instead of running each of the individual branches as their own scheduled workflow, we use the `latest_builds.yml` workflow on the `main` branch to kick off builds on the other branches as necessary. It dispatches them with the workflow's own `GITHUB_TOKEN` (granted `actions: write`); `workflow_dispatch` events always create workflow runs, even when triggered by `GITHUB_TOKEN`, so no personal access token is needed.
 
-The `latest_builds.yml` workflow uses the `latest_builds/requirements.txt` file to install the required packages and then runs the `latest_builds/latest_builds.py` script. The `latest_builds/latest_builds.py` script uses the `latest_builds/matrix.yml` to compare PyPI and against the various https://launchpad.net/~ansible PPAs to see if a new build is necessary. If a new build is necessary it triggers the appropriate workflow on the appropriate branch.
+The `latest_builds.yml` workflow uses the `latest_builds/requirements.txt` file to install the required packages and then runs the `latest_builds/latest_builds.py` script. The `latest_builds/latest_builds.py` script uses the `latest_builds/matrix.yml` to compare PyPI and against the various https://launchpad.net/~ansible PPAs to see if a new build is necessary. If a new build is necessary it triggers the appropriate workflow on the appropriate branch, waits for that run to finish, and moves on to the next build. At the end it writes a summary of every build to the job summary, and the `latest_builds.yml` run fails if any build (or any matrix entry) failed. `python3 latest_builds/latest_builds.py --dry-run` (with `LAUNCHPAD_PROJECT` set) shows what would be built without contacting GitHub.
 
 ### `.github/actions/{action.yml,setup.sh}`
 
@@ -342,7 +342,6 @@ Previously, old PPAs / releases were left alone for archival purposes.
 | --- | --- | --- |
 | `DEBSIGN_KEYID` | Deb signing key ID | `4697549E1287BC6A1A481B98DE6FE1F1C7DBF004` |
 | `LAUNCHPAD_PROJECT` | Launchpad project name | `~ansible` |
-| `PAT` | GitHub PAT for starting additional workflows (only requires the `public_repo` scope) | `ghp_ACTUAL_GITHUB_PAT_TOKEN_GOES_HERE` |
 | `SIGNING_KEY` | Armored signing key | <pre>-----BEGIN PGP PRIVATE KEY BLOCK-----<br/><br/>xcaGBGFLvFkBEADQbd7DocOo9XzMo5PD<br/>RX4Nxw4UHWJGjzdBZgmKzk+vLuTR+Cr8<br/>...<br/>tTtohAGXcR9EYhHemdVrew==<br/>=4DaA<br/>-----END PGP PRIVATE KEY BLOCK-----</pre> |
 | `SIGNING_OWNERTRUST` | Import-able ownertrust string | `4697549E1287BC6A1A481B98DE6FE1F1C7DBF004:6:` |
 | `SIGNING_PASSPHRASE` | Signing key passphrase | `PASSPHRASE_USED_FOR_SIGNING_KEY` |
