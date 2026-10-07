@@ -20,8 +20,8 @@ except ImportError:
 ARCH = "amd64"
 MATRIX = Path(__file__).resolve().parent / "matrix.yml"
 HTTP_TIMEOUT = 30  # seconds per request
-POLL_INTERVAL = 30  # seconds between checks on a dispatched run
-RUN_TIMEOUT = 2 * 60 * 60  # seconds to wait for one dispatched run before moving on
+POLL_INTERVAL = 30  # seconds between checks on the dispatched runs
+RUN_TIMEOUT = 2 * 60 * 60  # seconds to wait for the dispatched runs before giving up on them
 
 
 @dataclass
@@ -134,8 +134,8 @@ def plan_builds(matrix, launchpad_project, pypi, errors):
     return builds
 
 
-def run_build(github, actions_url, workflow_id, build, launchpad_project):
-    """Dispatch one build, wait for that exact run to finish, and return its conclusion."""
+def dispatch_build(github, actions_url, workflow_id, build, launchpad_project):
+    """Dispatch one build and return the API URL of the run it started (None if GitHub did not say)."""
     data = {
         "ref": build.github_branch,
         "inputs": {
@@ -149,27 +149,35 @@ def run_build(github, actions_url, workflow_id, build, launchpad_project):
     r = github.post(f"{actions_url}/workflows/{workflow_id}/dispatches", json=data, timeout=HTTP_TIMEOUT)
     r.raise_for_status()
     if r.status_code != 200:
-        return f"dispatched, but GitHub returned HTTP {r.status_code} without run details"
+        build.result = f"dispatched, but GitHub returned HTTP {r.status_code} without run details"
+        return None
 
     run = r.json()
     build.run_url = run["html_url"]
     print(f"    dispatched {build.run_url}")
+    return run["run_url"]
 
+
+def wait_for_builds(github, runs):
+    """Poll the dispatched runs ({run API URL: Build}) together, recording each conclusion as it completes."""
     deadline = monotonic() + RUN_TIMEOUT
-    while monotonic() < deadline:
+    while runs and monotonic() < deadline:
         sleep(POLL_INTERVAL)
-        try:
-            r = github.get(run["run_url"], timeout=HTTP_TIMEOUT)
-            r.raise_for_status()
-        except requests.RequestException as e:
-            print(f"      checking the run failed, will retry: {e}")
-            continue
-        status = r.json()
-        if status["status"] == "completed":
-            print(f"      completed: {status['conclusion']}")
-            return status["conclusion"]
+        for run_url, build in list(runs.items()):
+            try:
+                r = github.get(run_url, timeout=HTTP_TIMEOUT)
+                r.raise_for_status()
+            except requests.RequestException as e:
+                print(f"checking {build.run_url} failed, will retry: {e}")
+                continue
+            status = r.json()
+            if status["status"] == "completed":
+                build.result = status["conclusion"]
+                print(f"'{build.package}' '{build.version}' for '{build.launchpad_ppa}' completed: {build.result} {build.run_url}")
+                del runs[run_url]
 
-    return f"still running after {RUN_TIMEOUT // 60} minutes"
+    for build in runs.values():
+        build.result = f"still running after {RUN_TIMEOUT // 60} minutes"
 
 
 def report(builds, errors, dry_run):
@@ -222,6 +230,7 @@ def main():
     r.raise_for_status()
     workflows = {workflow["name"]: workflow["id"] for workflow in r.json()["workflows"]}
 
+    runs = {}
     for build in builds:
         print(f"building '{build.package}' '{build.version}' for {build.dists}")
         print(f"  github_branch = {build.github_branch}")
@@ -230,9 +239,14 @@ def main():
             build.result = f"no '{build.package}' workflow found"
             continue
         try:
-            build.result = run_build(github, actions_url, workflows[build.package], build, launchpad_project)
+            run_url = dispatch_build(github, actions_url, workflows[build.package], build, launchpad_project)
         except (requests.RequestException, KeyError) as e:
             build.result = f"dispatch failed: {e!r}"
+            continue
+        if run_url:
+            runs[run_url] = build
+
+    wait_for_builds(github, runs)
 
     report(builds, errors, dry_run=False)
     return 1 if errors or any(build.result != "success" for build in builds) else 0
