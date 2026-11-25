@@ -1,2 +1,1 @@
 extend-diff-ignore = "__pycache__"
-extend-diff-ignore = "test"

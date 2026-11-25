@@ -16,7 +16,7 @@ fi
 
 rm -rf "${HOME:?}"/"${DEB_NAME:?}"
 mkdir -p "${HOME}"/"${DEB_NAME}" && cd "$_" || exit
-wget -O "${DEB_NAME}"-"${DEB_VERSION}".tar.gz "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME//-/_}"/"${DEB_NAME//-/_}"-"${DEB_VERSION}".tar.gz
+wget -nv -O "${DEB_NAME}"-"${DEB_VERSION}".tar.gz "${TARBALL_BASE_URL}"/"${DEB_NAME:0:1}"/"${DEB_NAME//-/_}"/"${DEB_NAME//-/_}"-"${DEB_VERSION}".tar.gz
 
 DATE=$(date -Ru)
 export DATE
@@ -36,20 +36,11 @@ for DIST in ${DEB_DIST}; do
   cp -a "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/debian ./
   envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/templates/changelog > ./debian/changelog
 
-  # Fix setuptools < 77 PEP 639 compatibility for older Ubuntu distros like Noble
-  if [[ -f "pyproject.toml" ]]; then
-    SETUPTOOLS_VER=$(python3 -c 'import setuptools; print(setuptools.__version__.split(".")[0])' 2>/dev/null)
-    if [[ "${SETUPTOOLS_VER}" -lt 77 ]]; then
-      sed -i 's/^license = "GPL-3.0-or-later"/license = {text = "GPL-3.0-or-later"}/' pyproject.toml
-      sed -i '/^license-files = \[/,/\]/d' pyproject.toml
-    fi
-  fi
-
   # include the examples and man1 if ansible-core
   if [[ "${DEB_NAME}" == "ansible-core" ]]; then
     export DESCRIPTION='examples'
     export ORIGIN='https://github.com/ansible/ansible-documentation'
-    wget https://github.com/ansible/ansible-documentation/archive/refs/tags/v"${DEB_VERSION}".tar.gz -O - | tar -xzvf - --strip=1 ansible-documentation-"${DEB_VERSION}"/examples/{ansible.cfg,hosts} || exit
+    wget -nv https://github.com/ansible/ansible-documentation/archive/refs/tags/v"${DEB_VERSION}".tar.gz -O - | tar -xzvf - --strip=1 ansible-documentation-"${DEB_VERSION}"/examples/{ansible.cfg,hosts} || exit
     envsubst < "${HOME}"/work/ppa/ppa/"${DEB_NAME}"/packaging/templates/local-patch-header > ./debian/source/local-patch-header
     EDITOR=/bin/true dpkg-source --commit . examples
 
@@ -64,7 +55,7 @@ for DIST in ${DEB_DIST}; do
     EDITOR=/bin/true dpkg-source --commit . man1
   fi
 
-  debuild -S -k"${DEBSIGN_KEYID}" -p"${DEB_SIGN_PROGRAM}"
+  debuild --no-lintian -S -k"${DEBSIGN_KEYID}" -p"${DEB_SIGN_PROGRAM}"
   cd - || exit
 
   CHANGES="${DIST}"/"${DEB_NAME}"_"${DEB_CHANGELOG_VERSION}"-"${DEB_RELEASE}"~"${DIST}"_source.changes
