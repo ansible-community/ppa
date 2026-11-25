@@ -5,11 +5,12 @@ on:
     - cron: "16 16 * * *"
   workflow_dispatch: {}
 permissions:
-  contents: read
+  actions: write  # dispatch the build workflows and follow their runs
+  contents: read  # check out the repo
 jobs:
   kick_off_builds:
     name: kick off builds
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -20,7 +21,7 @@ jobs:
         env:
           GITHUB_API_URL: ${{ github.api_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_PAT: ${{ secrets.PAT }}
+          GITHUB_TOKEN: ${{ github.token }}
           LAUNCHPAD_PROJECT: ${{ secrets.LAUNCHPAD_PROJECT }}
         run: |
           python3 -m pip install --upgrade pip
