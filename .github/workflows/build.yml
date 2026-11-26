@@ -34,15 +34,19 @@ on:
       SIGNING_OWNERTRUST:
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build ${{ inputs.DEB_NAME }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.ref }}
+          persist-credentials: false
 
       - name: Remove existing Ansible installations
         run: ./.github/scripts/remove_existing_ansible.sh
